@@ -1758,8 +1758,8 @@ function updateImage(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('update manifest file');
         // const inputs: context.Inputs = context.getInputs();
-        let imageArray = getImageArray(inputs.images);
-        let manifestPath = path.resolve(inputs.manifest);
+        const imageArray = getImageArray(inputs.images);
+        const manifestPath = path.resolve(inputs.manifest);
         if (!fs.existsSync(manifestPath)) {
             throw new Error("Manifest file does not exist");
         }
@@ -1767,23 +1767,23 @@ function updateImage(inputs) {
          * manifest文件镜像信息替换成占位符
          */
         const prePlaceholder = "IMAGE_PLACEHOLDER_";
-        for (var i = 0; i < imageArray.length; i++) {
-            var replaceStr = prePlaceholder + i;
+        for (let i = 0; i < imageArray.length; i++) {
+            const replaceStr = prePlaceholder + i;
             //readFile方法读取文件内容
-            var data = fs.readFileSync(manifestPath, 'utf8');
-            var placeholder = data.replace(RegExp("image: .*"), replaceStr);
+            const data = fs.readFileSync(manifestPath, 'utf8');
+            const placeholder = data.replace(RegExp("image: .*"), replaceStr);
             //writeFile改写文件内容
             fs.writeFileSync(manifestPath, placeholder, 'utf8');
         }
         /*
          * 镜像占位符替换成新镜像信息
          */
-        for (var i = 0; i < imageArray.length; i++) {
-            var replaceStr = prePlaceholder + i;
+        for (let i = 0; i < imageArray.length; i++) {
+            const replaceStr = prePlaceholder + i;
             //readFile方法读取文件内容
-            var data = fs.readFileSync(manifestPath, 'utf8');
+            const data = fs.readFileSync(manifestPath, 'utf8');
             core.info(imageArray[i]);
-            var result = data.replace(RegExp(replaceStr), "image: \'" + imageArray[i] + "\'");
+            const result = data.replace(RegExp(replaceStr), "image: '" + imageArray[i] + "'");
             //writeFile改写文件内容
             fs.writeFileSync(manifestPath, result, 'utf8');
         }
@@ -1842,7 +1842,7 @@ const cp = __importStar(__nccwpck_require__(81));
 function downloadCciIamAuthenticator() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info('start install cci-iam-authenticator');
-        let platform = os.platform();
+        const platform = os.platform();
         installCciIamAuthenticatorByPlatform(platform);
     });
 }
@@ -1853,7 +1853,7 @@ exports.downloadCciIamAuthenticator = downloadCciIamAuthenticator;
  */
 function installCciIamAuthenticatorByPlatform(platform) {
     return __awaiter(this, void 0, void 0, function* () {
-        let downloadURL = getAuthDownloadURL(platform);
+        const downloadURL = getAuthDownloadURL(platform);
         yield installCciIamAuthenticator(downloadURL);
     });
 }
@@ -1931,13 +1931,13 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const inputs = context.getInputs();
         // 安装cci-iam-authenticator
-        const cciIamAuthPath = yield install.downloadCciIamAuthenticator();
+        yield install.downloadCciIamAuthenticator();
         // 配置iam的aksk
-        const cciIamAuth = yield auth.configCciAuth();
+        yield auth.configCciAuth();
         // 替换镜像地址
-        const imageConfi = yield image.updateImage(inputs);
+        yield image.updateImage(inputs);
         //部署cci
-        const deployCCI = yield deploy.deployCCI(inputs.manifest);
+        yield deploy.deployCCI(inputs.manifest);
     });
 }
 exports.run = run;

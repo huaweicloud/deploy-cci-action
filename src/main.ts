@@ -10,16 +10,16 @@ export async function run() {
     const inputs: context.Inputs = context.getInputs();
     
     // 安装cci-iam-authenticator
-    const cciIamAuthPath = await install.downloadCciIamAuthenticator();
+    await install.downloadCciIamAuthenticator();
     
     // 配置iam的aksk
-    const cciIamAuth = await auth.configCciAuth();
+    await auth.configCciAuth();
     
     // 替换镜像地址
-    const imageConfi = await image.updateImage(inputs);
+    await image.updateImage(inputs);
     
     //部署cci
-    const deployCCI = await deploy.deployCCI(inputs.manifest);
+    await deploy.deployCCI(inputs.manifest);
 }
 
 run().catch(core.setFailed);

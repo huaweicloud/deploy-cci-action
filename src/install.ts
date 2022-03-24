@@ -1,12 +1,11 @@
 import * as core from '@actions/core'
-import * as io from '@actions/io'
 import * as os from 'os'
 import * as cp from 'child_process'
 
 
 export async function downloadCciIamAuthenticator(): Promise<void> {
     core.info('start install cci-iam-authenticator');
-    let platform = os.platform();
+    const platform = os.platform();
     installCciIamAuthenticatorByPlatform(platform);
   }
 
@@ -15,7 +14,7 @@ export async function downloadCciIamAuthenticator(): Promise<void> {
  * @param platform
  */
 export async function installCciIamAuthenticatorByPlatform(platform: string): Promise<void> {
-    let downloadURL = getAuthDownloadURL(platform);
+    const downloadURL = getAuthDownloadURL(platform);
     
     await installCciIamAuthenticator(downloadURL);
     

@@ -9,8 +9,8 @@ import * as path from 'path';
 export async function updateImage(inputs: context.Inputs): Promise<void> {
     core.info('update manifest file');
     // const inputs: context.Inputs = context.getInputs();
-    let imageArray:string[] = getImageArray(inputs.images);
-    let manifestPath:string = path.resolve(inputs.manifest);
+    const imageArray:string[] = getImageArray(inputs.images);
+    const manifestPath = path.resolve(inputs.manifest);
     
     if (!fs.existsSync(manifestPath)) {
       throw new Error("Manifest file does not exist");
@@ -20,11 +20,11 @@ export async function updateImage(inputs: context.Inputs): Promise<void> {
      * manifest文件镜像信息替换成占位符
      */
     const prePlaceholder:string = "IMAGE_PLACEHOLDER_";
-    for (var i = 0; i < imageArray.length; i++) {
-        var replaceStr = prePlaceholder + i;
+    for (let i = 0; i < imageArray.length; i++) {
+        const replaceStr = prePlaceholder + i;
         //readFile方法读取文件内容
-        var data = fs.readFileSync(manifestPath, 'utf8');
-        var placeholder = data.replace(RegExp("image: .*"), replaceStr);
+        const data = fs.readFileSync(manifestPath, 'utf8');
+        const placeholder = data.replace(RegExp("image: .*"), replaceStr);
         //writeFile改写文件内容
         fs.writeFileSync(manifestPath, placeholder, 'utf8');
     }
@@ -32,12 +32,12 @@ export async function updateImage(inputs: context.Inputs): Promise<void> {
     /*
      * 镜像占位符替换成新镜像信息
      */
-    for (var i = 0; i < imageArray.length; i++) {
-        var replaceStr = prePlaceholder + i;
+    for (let i = 0; i < imageArray.length; i++) {
+        const replaceStr = prePlaceholder + i;
         //readFile方法读取文件内容
-        var data = fs.readFileSync(manifestPath, 'utf8');
+        const data = fs.readFileSync(manifestPath, 'utf8');
         core.info(imageArray[i]);
-        var result = data.replace(RegExp(replaceStr), "image: \'" +imageArray[i] + "\'");
+        const result = data.replace(RegExp(replaceStr), "image: '" +imageArray[i] + "'");
         //writeFile改写文件内容
         fs.writeFileSync(manifestPath, result, 'utf8');
     }
