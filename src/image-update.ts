@@ -13,13 +13,18 @@ export async function updateImage(inputs: context.Inputs): Promise<void> {
     const manifestPath = path.resolve(inputs.manifest);
     
     if (!fs.existsSync(manifestPath)) {
-      throw new Error("Manifest file does not exist");
+      throw new Error("Manifest file does not exist.");
     }
     
+    await replaceMatchingFileContent(imageArray, manifestPath);
+    
+}
+
+export async function replaceMatchingFileContent(imageArray:string[], manifestPath: string): Promise<void> {
     /*
      * manifest文件镜像信息替换成占位符
      */
-    const prePlaceholder:string = "IMAGE_PLACEHOLDER_";
+    const prePlaceholder = "IMAGE_PLACEHOLDER_";
     for (let i = 0; i < imageArray.length; i++) {
         const replaceStr = prePlaceholder + i;
         //readFile方法读取文件内容
@@ -41,9 +46,9 @@ export async function updateImage(inputs: context.Inputs): Promise<void> {
         //writeFile改写文件内容
         fs.writeFileSync(manifestPath, result, 'utf8');
     }
-    
 }
 
-function getImageArray(images: string):string[]{
+
+export function getImageArray(images: string):string[]{
     return images.split(","); 
 }

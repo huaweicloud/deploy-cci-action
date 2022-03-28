@@ -1,0 +1,27 @@
+apiVersion: apps/v1      # 注意这里与Pod的区别，Deployment是apps/v1而不是v1
+kind: Deployment         # 资源类型为Deployment
+metadata:
+  name: cci-deployment            # Deployment的名称
+  namespace: cci-namespace-70395701
+spec:
+  replicas: 2            # Pod的数量，Deployment会确保一直有2个Pod运行         
+  selector:              # Label Selector
+    matchLabels:
+      app: cci-deployment
+  template:              # Pod的定义，用于创建Pod，也称为Pod template
+    metadata:
+      labels:
+        app: cci-deployment
+    spec:
+      containers:
+      - image: 'swr.repace.myhuaweicloud.com/repace/repace:v1.1'
+        name: container-0
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1024Mi
+          requests:
+            cpu: 500m
+            memory: 1024Mi

@@ -19,7 +19,7 @@ export async function run() {
     await image.updateImage(inputs);
     
     //部署cci
-    await deploy.deployCCI(inputs.manifest);
+    await deploy.deployCCI();
 }
 
 run().catch(core.setFailed);
