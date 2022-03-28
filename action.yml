@@ -1,5 +1,5 @@
 # action.yml
-name: 'Huawei Deoloy Cloud Container Instance(CCI)'
+name: 'HuaweiCloud Deoloy CCI'
 description: 'Action for deploying to Huawei Cloud Container Instance(CCI)'
 inputs:
   access_key:
