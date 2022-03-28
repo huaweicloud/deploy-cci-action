@@ -2,6 +2,8 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/tool-cache": "^1.7.2",
+    "@vercel/ncc": "^0.33.3",
+    "prettier": "^2.6.1",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.7.0"
   },
@@ -13,6 +15,8 @@
   },
   "scripts": {
     "test": "jest",
-    "lint": "eslint code --ext ts"
+    "lint": "eslint code --ext ts",
+    "format": "prettier --write '**/*.ts'",
+    "format-check": "prettier --check '**/*.ts'"
   }
 }
