@@ -5,7 +5,7 @@ export interface Inputs {
   secretKey: string
   region: string
   manifest: string
-  images: string
+  imageList: string[]
 }
 
 export function getInputs(): Inputs {
@@ -14,6 +14,6 @@ export function getInputs(): Inputs {
     secretKey: core.getInput('secret_key', {required: true}),
     region: core.getInput('region', {required: true}),
     manifest: core.getInput('manifest', {required: true}),
-    images: core.getInput('images', {required: true})
+    imageList: core.getMultilineInput('image_list', {required: true})
   }
 }

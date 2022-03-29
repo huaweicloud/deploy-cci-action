@@ -8,14 +8,13 @@ import * as path from 'path'
  */
 export async function updateImage(inputs: context.Inputs): Promise<void> {
   core.info('update manifest file')
-  const imageArray: string[] = getImageArray(inputs.images)
   const manifestPath = path.resolve(inputs.manifest)
 
   if (!fs.existsSync(manifestPath)) {
     throw new Error('Manifest file does not exist.')
   }
 
-  await replaceMatchingFileContent(imageArray, manifestPath)
+  await replaceMatchingFileContent(inputs.imageList, manifestPath)
 }
 
 export async function replaceMatchingFileContent(
@@ -50,8 +49,4 @@ export async function replaceMatchingFileContent(
     //writeFile改写文件内容
     fs.writeFileSync(manifestPath, result, 'utf8')
   }
-}
-
-export function getImageArray(images: string): string[] {
-  return images.split(',')
 }

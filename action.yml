@@ -15,9 +15,12 @@ inputs:
   manifest:
     description: "The kubernetes deployment yaml file"
     required: true
-  images:
-    description: images url(e.g., swr.cn-north-4.myhuaweicloud.com/namespace/demo:v1.1,swr.cn-north-4.myhuaweicloud.com/namespace/demo:v1.2)
-    required: true  
+  image_list:
+    description: 镜像列表，根据manifest文件镜像个数来填image_list.default提供了输入镜像列表的例子，实际使用需要自己替换
+    required: true 
+    default: |
+             library/nginx:perl
+             swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1  
 branding:
   icon: 'cloud'
   color: 'red'

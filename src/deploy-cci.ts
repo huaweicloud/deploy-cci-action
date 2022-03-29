@@ -5,5 +5,8 @@ import * as cp from 'child_process'
 export async function deployCCI(): Promise<void> {
   const inputs: context.Inputs = context.getInputs()
   core.info('start deploy cci')
-  await (cp.execSync(`kubectl apply -f ${inputs.manifest}`) || '').toString()
+  const result = await (
+    cp.execSync(`kubectl apply -f ${inputs.manifest}`) || ''
+  ).toString()
+  core.info('deploy cci result: ' + result)
 }

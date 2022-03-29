@@ -8,9 +8,10 @@ import * as cp from 'child_process'
 export async function configCciAuth(): Promise<void> {
   core.info('Configuring IAM Authentication Information Using AK/SK')
   const input: context.Inputs = context.getInputs()
-  await (
+  const result = await (
     cp.execSync(
       `cci-iam-authenticator generate-kubeconfig --cci-endpoint=https://cci.${input.region}.myhuaweicloud.com --ak=${input.accessKey} --sk=${input.secretKey}`
     ) || ''
   ).toString()
+  core.info('generate-kubeconfig result: ' + result)
 }

@@ -71,7 +71,8 @@ jobs:
           secret_key: ${{ secrets.SECRETACCESSKEY }}
           region: ${{ env.REGION_ID }}
           manifest: './deployment.yaml' 
-          images: ${{ steps.build-image.outputs.image }}
+          image_list: |
+            ${{ steps.build-image.outputs.image }}
 
 ```
 

@@ -2,11 +2,11 @@ import * as core from '@actions/core'
 import * as os from 'os'
 import * as cp from 'child_process'
 
-export function downloadCciIamAuthenticator() {
+export async function downloadCciIamAuthenticator(): Promise<void> {
   core.info('start install cci-iam-authenticator')
   const platform = os.platform()
   core.info('platform: ' + platform)
-  installCciIamAuthenticatorByPlatform(platform)
+  await installCciIamAuthenticatorByPlatform(platform)
 }
 
 /*
@@ -40,9 +40,22 @@ export function getAuthDownloadURL(platform: string): string {
 export async function installCciIamAuthenticator(
   downloadURL: string
 ): Promise<void> {
-  await (
+  const result = await (
     cp.execSync(
       `curl -LO "${downloadURL}"   && chmod +x ./cci-iam-authenticator && mv ./cci-iam-authenticator /usr/local/bin`
     ) || ''
   ).toString()
+
+  // 检查是否下载安装成功cci-iam-authenticator
+  await checkCciIamAuthenticator()
+}
+/*
+ * 检查是否下载安装成功cci-iam-authenticator
+ */
+export async function checkCciIamAuthenticator(): Promise<void> {
+  core.info('check download cci-iam-authenticator result.')
+  const checkResult = await (
+    cp.execSync(`cci-iam-authenticator --help`) || ''
+  ).toString()
+  core.info('check download cci-iam-authenticator result: ' + checkResult)
 }
