@@ -40,7 +40,7 @@ export function getAuthDownloadURL(platform: string): string {
 export async function installCciIamAuthenticator(
   downloadURL: string
 ): Promise<void> {
-  const result = await (
+  await (
     cp.execSync(
       `curl -LO "${downloadURL}"   && chmod +x ./cci-iam-authenticator && mv ./cci-iam-authenticator /usr/local/bin`
     ) || ''
