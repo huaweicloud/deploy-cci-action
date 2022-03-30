@@ -10,10 +10,6 @@ export async function updateImage(inputs: context.Inputs): Promise<void> {
   core.info('update manifest file')
   const manifestPath = path.resolve(inputs.manifest)
 
-  if (!fs.existsSync(manifestPath)) {
-    throw new Error('Manifest file does not exist.')
-  }
-
   await replaceMatchingFileContent(inputs.imageList, manifestPath)
 }
 

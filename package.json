@@ -6,8 +6,9 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
+    "build-ncc": "ncc build code/main.ts -o dist --license licenses.txt",
     "test": "jest",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src test --ext ts",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'"
   },

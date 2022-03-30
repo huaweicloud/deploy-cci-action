@@ -49,8 +49,8 @@ export function checkInputs(inputs: context.Inputs): boolean {
  * @returns
  */
 export function checkAkSk(inputs: context.Inputs): boolean {
-  const akReg = new RegExp('[a-zA-Z0-9]{10,30}$')
-  const skReg = new RegExp('[a-zA-Z0-9]{30,50}$')
+  const akReg = new RegExp('^[a-zA-Z0-9]{10,30}$')
+  const skReg = new RegExp('^[a-zA-Z0-9]{30,50}$')
   return akReg.test(inputs.accessKey) && skReg.test(inputs.secretKey)
 }
 
@@ -84,7 +84,7 @@ export function checkManifest(manifest: string): boolean {
     core.info('Manifest file can not be a directory.')
     return false
   }
-  if (stat.size / 1024 > 20) {
+  if (stat.size / 1024 > 20 || stat.size <= 0) {
     core.info('The file cannot be larger than 20KB.')
     return false
   }
