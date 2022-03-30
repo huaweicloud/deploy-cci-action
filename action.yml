@@ -1,0 +1,30 @@
+# action.yml
+name: 'HuaweiCloud CCI Deoloy'
+description: 'Action for deploying to Cloud Container Instance(CCI)'
+inputs:
+  access_key:
+    description: "Access key id"
+    required: true
+  secret_key:
+    description: "Secret access key"
+    required: true
+  region:
+    description: 'Region'
+    required: true
+    default: 'cn-north-4'
+  manifest:
+    description: "The kubernetes deployment yaml file"
+    required: true
+  image_list:
+    description: 镜像列表，根据manifest文件镜像个数来填image_list.default提供了输入镜像列表的例子，实际使用需要自己替换
+    required: true 
+    default: |
+             library/nginx:perl
+             swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1  
+branding:
+  icon: 'cloud'
+  color: 'red'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
+

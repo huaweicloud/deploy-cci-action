@@ -1,0 +1,53 @@
+name: Deploy CCI Actions Demo
+on: [push]
+      
+env:
+  REGION_ID: region                  # set this to your preferred huaweicloud region, e.g. cn-north-4
+  ACCESS_KEY_ID: ${{ secrets.ACCESSKEY }}             # set this to your huaweicloud access-key-id
+  ACCESS_KEY_SECRET: ${{ secrets.SECRETACCESSKEY }}               # set this to your huaweicloud access-key-secret
+  SWR_ORGANIZATION:  demo   # SWR 组织名
+  IMAGE_NAME: ccidemo       # 镜像名称
+            
+jobs:
+  deploy_cci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Build with Maven
+        id: build-project
+        run: mvn package -Dmaven.test.skip=true -U -e -X -B
+        
+      - name: Log in to HuaweiCloud SWR
+        uses: huaweicloud/swr-login@v1
+        with:
+          region: ${{ env.REGION_ID }}
+          access-key-id: ${{ secrets.ACCESSKEY }}
+          access-key-secret: ${{ secrets.SECRETACCESSKEY }}
+
+      - name: Build, tag, and push image to HuaweiCloud SWR
+        id: build-image
+        env:
+          SWR_REGISTRY: swr.${{ env.REGION_ID }}.myhuaweicloud.com
+          SWR_ORGANIZATION: ${{ env.SWR_ORGANIZATION }}
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        run: |
+          docker build -t $SWR_REGISTRY/$SWR_ORGANIZATION/$IMAGE_NAME:$IMAGE_TAG .
+          docker push $SWR_REGISTRY/$SWR_ORGANIZATION/$IMAGE_NAME:$IMAGE_TAG
+          echo "::set-output name=image::$SWR_REGISTRY/$SWR_ORGANIZATION/$IMAGE_NAME:$IMAGE_TAG"
+
+      - name: Kubectl tool installer
+        id: install-kubectl
+        uses: Azure/setup-kubectl@v2.1
+
+      - name: deploy to cci
+        uses: huaweicloud/deploy-cci-action@v1.0.0
+        id: deploy-to-cci
+        with:
+          access_key: ${{ secrets.ACCESSKEY }}
+          secret_key: ${{ secrets.SECRETACCESSKEY }}
+          region: ${{ env.REGION_ID }}
+          manifest: './deployment.yaml' 
+          image_list: |
+              ${{ steps.build-image.outputs.image }}
