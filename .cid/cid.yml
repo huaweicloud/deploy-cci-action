@@ -1,0 +1,20 @@
+version: '1.0'
+name: deploy-cci-action
+language: java
+dependencies:
+  base:
+    jdk: best
+    maven: best
+artifacts:
+  image:
+    - >-
+      registry-cbu.huawei.com/dtse-hdn/deploy-cci-action:1.0_$build_number
+machine:
+  standard:
+    euler:
+      - default
+scripts:
+  - mvn package -Dmaven.test.skip=true
+  - >-
+    docker build -t
+    registry-cbu.huawei.com/dtse-hdn/deploy-cci-action:1.0_${CID_BUILD_NUMBER} .
