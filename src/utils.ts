@@ -1,6 +1,7 @@
 import * as context from './context'
 import * as core from '@actions/core'
 import * as fs from 'fs'
+import yaml from 'yaml'
 import * as path from 'path'
 import * as mime from 'mime'
 
@@ -24,18 +25,46 @@ const regionArray: string[] = [
  * @returns
  */
 export function checkInputs(inputs: context.Inputs): boolean {
-  if (!checkAkSk(inputs)) {
+  if (!checkAkSk(inputs.accessKey, inputs.secretKey)) {
     core.info('ak or sk is not correct.')
+    return false
+  }
+  if (!checkProjectId(inputs.projectId)) {
+    core.info('projectId is not correct.')
     return false
   }
   if (!checkRegion(inputs.region)) {
     core.info('region is not correct.')
     return false
   }
+  if (!checkNamespace(inputs.namespace)) {
+    core.info('namespace is not correct.')
+    return false
+  }
+
+  if (!checkDeployment(inputs.deployment)) {
+    core.info('deployment is not correct.')
+    return false
+  }
   if (!checkManifest(inputs.manifest)) {
     core.info('manifest is not correct.')
     return false
   }
+
+  // deployment和manifest不能同时不传
+  if (!inputs.deployment && !inputs.manifest) {
+    core.info('At least one of the deployment, manifest parameters')
+    return false
+  }
+
+  // deployment和manifest同时传的时候负载名称需要一致
+  if (inputs.deployment && inputs.manifest) {
+    if (!iskDeploymentNameConsistent(inputs.deployment, inputs.manifest)) {
+      core.info('At least one of the deployment, manifest parameters')
+      return false
+    }
+  }
+
   if (!checkImageList(inputs)) {
     core.info('image_list is not correct.')
     return false
@@ -48,10 +77,20 @@ export function checkInputs(inputs: context.Inputs): boolean {
  * @param inputs
  * @returns
  */
-export function checkAkSk(inputs: context.Inputs): boolean {
+export function checkAkSk(accessKey: string, secretKey: string): boolean {
   const akReg = new RegExp('^[a-zA-Z0-9]{10,30}$')
   const skReg = new RegExp('^[a-zA-Z0-9]{30,50}$')
-  return akReg.test(inputs.accessKey) && skReg.test(inputs.secretKey)
+  return akReg.test(accessKey) && skReg.test(secretKey)
+}
+
+/**
+ * 检查projectId是否合法
+ * @param projectId
+ * @returns
+ */
+ export function checkProjectId(projectId: string): boolean {
+  const projectIdReg = new RegExp('^[a-zA-Z0-9]{16,64}$')
+  return projectIdReg.test(projectId)
 }
 
 /**
@@ -61,6 +100,30 @@ export function checkAkSk(inputs: context.Inputs): boolean {
  */
 export function checkRegion(region: string): boolean {
   return regionArray.includes(region)
+}
+
+/**
+ * 检查namespace是否合法
+ * @param namespace
+ * @returns
+ */
+ export function checkNamespace(namespace: string): boolean {
+  const namespaceReg = new RegExp('^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$')
+  return namespaceReg.test(namespace)
+}
+
+/**
+ * 检查deployment是否合法
+ * @param deployment
+ * @returns
+ */
+ export function checkDeployment(deployment: string): boolean {
+   if (deployment) {
+    const deploymentReg = new RegExp('^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$')
+    const isSpecialCharacterConnector = deployment.includes("..") || deployment.includes(".-") || deployment.includes("-.");
+    return deploymentReg.test(deployment) && !isSpecialCharacterConnector;
+   }
+  return true;
 }
 
 /**
@@ -89,6 +152,31 @@ export function checkManifest(manifest: string): boolean {
     return false
   }
   return true
+}
+
+/**
+ * 检查负载参数一致
+ * @param deployment
+ * @returns
+ */
+ export function iskDeploymentNameConsistent(deployment: string, manifest: string): boolean {
+  const file = fs.readFileSync(manifest, 'utf8')
+  const obsJson = yaml.parse(file);
+  const metadata = obsJson.metadata;
+  const deploymentName = metadata.name;
+  if (metadata == null && metadata == undefined) {
+    core.info('manifest file is not correct.')
+    return false
+  }
+  if (deploymentName == null && deploymentName == undefined) {
+    core.info('manifest file is not correct.')
+    return false
+  }
+  if(deployment != obsJson.metadata.name) {
+    core.info('deployment, manifest parameters must be the same.')
+    return false
+  }
+  return true;
 }
 
 /**
