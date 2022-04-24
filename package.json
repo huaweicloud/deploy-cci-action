@@ -16,6 +16,9 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/tool-cache": "^1.7.2",
+    "@huaweicloud/huaweicloud-sdk-core": "^3.0.37-rc",
+    "@huaweicloud/huaweicloud-sdk-eip": "^3.0.37-rc",
+    "@huaweicloud/huaweicloud-sdk-vpc": "^3.0.37-rc",
     "@vercel/ncc": "^0.33.3",
     "prettier": "^2.6.1",
     "ts-jest": "^27.1.4",

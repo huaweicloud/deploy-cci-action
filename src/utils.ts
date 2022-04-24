@@ -118,3 +118,12 @@ export function checkImageList(inputs: context.Inputs): boolean {
   }
   return true
 }
+
+/**
+ * 返回随机数
+ * @param number
+ * @returns number
+ */
+export function getRandomByDigit(digitNumber: number): number {
+  return Math.round(Math.random() * Math.pow(10, digitNumber));
+}

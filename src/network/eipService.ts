@@ -1,0 +1,82 @@
+import * as core from '@actions/core'
+import * as utils from '../utils'
+import * as context from '../context'
+
+const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
+const eip = require("@huaweicloud/huaweicloud-sdk-eip");
+
+/**
+ * 购买弹性公网IP
+ * @param 
+ * @returns
+ */
+export async function createPublicip(): Promise<string> {
+  const inputs: context.Inputs = context.getInputs()
+  const ak = inputs.accessKey;
+  const sk = inputs.secretKey;
+  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
+  const projectId = inputs.projectId;
+  const bandwidthName = 'bandwidth-' + utils.getRandomByDigit(8);
+
+  const credentials = new huaweicore.BasicCredentials()
+                       .withAk(ak)
+                       .withSk(sk)
+                       .withProjectId(projectId)
+  const client = eip.EipClient.newBuilder()
+                              .withCredential(credentials)
+                              .withEndpoint(endpoint)
+                              .build();
+  const request = new eip.CreatePublicipRequest();
+  const body = new eip.CreatePublicipRequestBody();
+  const publicipbody = new eip.CreatePublicipOption();
+  publicipbody.withType("5_bgp");
+  const bandwidthbody = new eip.CreatePublicipBandwidthOption();
+  bandwidthbody.withChargeMode("traffic")
+   .withName(bandwidthName)
+   .withShareType("PER")
+   .withSize(5);
+  body.withPublicip(publicipbody);
+  body.withBandwidth(bandwidthbody);
+  request.withBody(body);
+  const result = await client.createPublicip(request);
+  core.info(result);
+  if (result.httpStatusCode != 200) {
+    core.setFailed('Create Public IP Failed.');
+   } 
+  return Promise.resolve(result.publicip.id);
+}
+
+
+/**
+ * 更新弹性公网IP。更新EIP，将EIP跟一个网卡绑定或者解绑定，转换IP地址版本类型。
+ * @param 
+ * @returns
+ */
+export async function updatePublicip(publicipId: string, portId: string): Promise<void> {
+  const inputs: context.Inputs = context.getInputs()
+  const ak = inputs.accessKey;
+  const sk = inputs.secretKey;
+  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
+  const projectId = inputs.projectId;
+
+  const credentials = new huaweicore.BasicCredentials()
+                       .withAk(ak)
+                       .withSk(sk)
+                       .withProjectId(projectId)
+  const client = eip.EipClient.newBuilder()
+                              .withCredential(credentials)
+                              .withEndpoint(endpoint)
+                              .build();
+  const request = new eip.UpdatePublicipRequest();
+  request.publicipId = publicipId;
+  const body = new eip.UpdatePublicipsRequestBody();
+  const publicipbody = new eip.UpdatePublicipOption();
+  publicipbody.withPortId(portId);
+  body.withPublicip(publicipbody);
+  request.withBody(body);
+  const result = await client.updatePublicip(request);
+  core.info(result);
+  if (result.httpStatusCode != 200) {
+    core.setFailed('Update Public IP Failed.');
+   }
+}
