@@ -134,13 +134,14 @@ import * as mime from 'mime'
    * @param inputs
    * @returns
    */
-  export function checkImage(inputs: context.Inputs): boolean {
-    // cci region和swr region需要一致
-    if (
-      new RegExp('swr..{5,20}.myhuaweicloud.com').test(inputs.image) &&
-      !inputs.image.includes(inputs.region)
-    ) {
-      core.info('The regions of cci and swr must be the same.')
+  export function checkImage(image: string, region: string): boolean {
+    if (!new RegExp('swr..{5,20}.myhuaweicloud.com').test(image)) {
+      core.info('The image of cci must be the swr image.')
+      return false
+    }
+
+    if (image.indexOf(region) == -1){
+      core.info('The region of cci and swr must be the same.')
       return false
     }
     

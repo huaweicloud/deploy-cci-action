@@ -116,14 +116,13 @@ describe('test whether the manifest parameter is valid', () => {
 
 describe('test whether the imageList parameter is valid', () => {
     const testCase = [
-        { description: '镜像数量和manifest文件镜像个数一致',  input: { accessKey: '', secretKey: '', projectId: '', region: '', namespace: '', deployment: '', manifest: './test/deployment-files/test.imagelist.yaml', imageList: ['swr.cn-north-4.myhuaweicloud.com/demo-test/demo:v1.2']}, result: true},
-        { description: '镜像数量和manifest文件镜像个数不一致',  input: { accessKey: '', secretKey: '', projectId: '', region: '', namespace: '', deployment: '', manifest: './test/deployment-files/test.imagelist.yaml', imageList: ['image1', 'image2']}, result: false},
-        { description: '镜像region和cci的region不一致',  input: { accessKey: '', secretKey: '', projectId: '', region: 'cn-north-4', namespace: '', deployment: '', manifest: './test/deployment-files/test.imagelist.yaml', imageList: ['swr.cn-south-1.myhuaweicloud.com/demo-test/demo:v1.2']}, result: false},
+        { description: '镜像地址非swr地址',  region: '', image: '428173dff439.dkr.ecr.ap-southeast-1.amazonaws.com/demo', result: false},
+        { description: '镜像region和cci的region不一致', region: 'cn-north-4', image: 'swr.cn-south-1.myhuaweicloud.com/demo-test/demo:v1.2', result: false},
     ]
     testCase.forEach(item => {
-        const { description, input, result } = item
+        const { description, region, image , result } = item
         test(`${description}，返回值为${result}`, () => {
-            expect(validator.checkImageList(input)).toBe(result)
+            expect(validator.checkImage(image, region)).toBe(result)
         });
     })
   })

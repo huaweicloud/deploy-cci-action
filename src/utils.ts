@@ -36,15 +36,15 @@ export function checkInputs(inputs: context.Inputs): boolean {
   }
 
   // deployment和manifest同时传的时候负载名称需要一致
-  if (inputs.deployment && inputs.manifest) {
+  if (inputs.manifest) {
     if (!validator.isDeploymentNameConsistent(inputs.deployment, inputs.manifest)) {
       core.info('deployment, manifest parameters must be the same.')
       return false
     }
   }
 
-  if (!validator.checkImage(inputs)) {
-    core.info('image_list is not correct.')
+  if (!validator.checkImage(inputs.image, inputs.region)) {
+    core.info('image is not correct.')
     return false
   }
   return true

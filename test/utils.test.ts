@@ -12,14 +12,14 @@ describe('test whether at least one of the deployment and manifest parameter', (
             input: {
                 accessKey: '', secretKey: '', projectId: '', region: '', namespace: '',
                 deployment: 'cci-deployment', manifest: './test/deployment-files/test.deployment.manifest.same.yaml',
-                imageList: ['']
+                image: ''
             }, result: true
         },
         {   description: 'deployment存在和manifest不存在', 
             input: {
                 accessKey: '', secretKey: '', projectId: '', region: '', namespace: '',
                 deployment: 'cci-deployment', manifest: '',
-                imageList: ['']
+                image: ''
             }, result: true
         },
     ]
@@ -32,7 +32,7 @@ describe('test whether at least one of the deployment and manifest parameter', (
             jest.spyOn(validator, 'checkNamespace').mockReturnValue(true);
             jest.spyOn(validator, 'checkDeployment').mockReturnValue(true);
             jest.spyOn(validator, 'checkManifest').mockReturnValue(true);
-            jest.spyOn(validator, 'checkImageList').mockReturnValue(true);
+            jest.spyOn(validator, 'checkImage').mockReturnValue(true);
             expect(utils.checkInputs(input)).toBe(result)
         });
     })
@@ -44,14 +44,14 @@ describe('test whether the deployment and manifest parameter is same', () => {
             input: {
                 accessKey: '', secretKey: '', projectId: '', region: '', namespace: '',
                 deployment: 'cci-deployment', manifest: './test/deployment-files/test.deployment.manifest.same.yaml',
-                imageList: ['']
+                image: ''
             }, result: true
         },
         {   description: 'deployment和manifest同时存在且不一致', 
             input: {
                 accessKey: '', secretKey: '', projectId: '', region: '', namespace: '',
                 deployment: 'cci-deploymendddt', manifest: './test/deployment-files/test.deployment.manifest.same.yaml',
-                imageList: ['']
+                image: ''
             }, result: false
         },
     ]
@@ -64,7 +64,7 @@ describe('test whether the deployment and manifest parameter is same', () => {
             jest.spyOn(validator, 'checkNamespace').mockReturnValue(true);
             jest.spyOn(validator, 'checkDeployment').mockReturnValue(true);
             jest.spyOn(validator, 'checkManifest').mockReturnValue(true);
-            jest.spyOn(validator, 'checkImageList').mockReturnValue(true);
+            jest.spyOn(validator, 'checkImage').mockReturnValue(true);
             expect(utils.checkInputs(input)).toBe(result)
         });
     })
