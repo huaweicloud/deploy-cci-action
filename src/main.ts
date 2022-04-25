@@ -5,6 +5,7 @@ import * as install from './install'
 import * as auth from './auth'
 import * as image from './image-update'
 import * as deploy from './deploy-cci'
+import * as cci from './cci/cciService'
 
 export async function run() {
   const inputs: context.Inputs = context.getInputs()
@@ -20,6 +21,9 @@ export async function run() {
 
   // 配置iam的aksk
   await auth.configCciAuth()
+
+  //不存在即新建命名空间和绑定网络
+  await cci.createNamespace(inputs)
 
   // 替换镜像地址
   await image.updateImage(inputs)

@@ -35,12 +35,6 @@ export function checkInputs(inputs: context.Inputs): boolean {
     return false
   }
 
-  // deployment和manifest不能同时不传
-  if (!inputs.deployment && !inputs.manifest) {
-    core.info('At least one of the deployment, manifest parameters')
-    return false
-  }
-
   // deployment和manifest同时传的时候负载名称需要一致
   if (inputs.deployment && inputs.manifest) {
     if (!validator.isDeploymentNameConsistent(inputs.deployment, inputs.manifest)) {

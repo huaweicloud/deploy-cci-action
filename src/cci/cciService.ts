@@ -1,9 +1,22 @@
 import * as core from '@actions/core'
+import yaml from 'yaml'
+import * as fs from 'fs'
 import * as cp from 'child_process'
 import * as context from '../context'
+import * as utils from '../utils'
+import * as vpc from '../network/vpcService'
+import * as iam from '../iam/iamService'
+import * as eip from '../network/eipService'
+import * as elb from '../network/elbService'
 
 import huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 import {CciClient} from './CciClient';
+import { Namespace } from './manifest/Namespace'
+import { Network } from './manifest/Network'
+import { Deployment } from './manifest/Deployment'
+import { Service } from './manifest/Service'
+import { Ingress } from './manifest/Ingress'
+import { SubnetInfo } from '../network/model/SubnetInfo'
 import {ListNetworkingCciIoV1beta1NamespacedNetworkRequest} from './model/ListNetworkingCciIoV1beta1NamespacedNetworkRequest';
 import {ListNetworkingCciIoV1beta1NamespacedNetworkResponse} from './model/ListNetworkingCciIoV1beta1NamespacedNetworkResponse';
 
@@ -27,19 +40,81 @@ export function getAvailableZone(region: string): string {
 }
 
 /**
- * 检查命名空间是否存在
+ * 创建命名空间时会关联已有VPC或创建一个新的VPC
  * @param inputs
  * @returns
  */
-export function isNamespaceExist(inputs: context.Inputs): boolean {
+export async function createNamespace(inputs: context.Inputs): Promise<void> {
+  if (!isNamespaceExist(inputs.namespace)) {
+
+    // 新建Namespace
+   const namespaceFileName = 'namespace-' + utils.getRandomByDigit(8) + '.yml';
+   let namespaceContent = new Namespace(inputs.namespace);
+   fs.writeFileSync(namespaceFileName, yaml.stringify(namespaceContent), 'utf8')
+   applyNamespace(namespaceFileName)
+   
+   // 新建Network
+   const securityGroupId = await vpc.listDefaultCCISecurityGroups();
+   const domainId = await iam.keystoneListAuthDomains();
+   const availableZone = getAvailableZone(inputs.region);
+   const networkFileName = 'network-' + utils.getRandomByDigit(8) + '.yml';
+   const vpcId = await vpc.createVpc();
+   const subnetInfo: SubnetInfo = await vpc.createSubnet(vpcId);
+   let networkContent = new Network(inputs.namespace, securityGroupId, domainId, inputs.projectId, 
+                                    availableZone, subnetInfo.cidr, vpcId, subnetInfo.neutron_network_id, subnetInfo.neutron_subnet_id);
+   fs.writeFileSync(networkFileName, yaml.stringify(networkContent), 'utf8')
+   applyNetwork(networkFileName, inputs.namespace)
+ }
+}
+
+/**
+ * 负载创建
+ * @param inputs
+ * @returns
+ */
+ export async function createDeployment(inputs: context.Inputs): Promise<void> {
+    // 新建Deployment
+    const deployFileName = 'deployment-' + utils.getRandomByDigit(8) + '.yml'
+    let deployContent = new Deployment(inputs)
+    fs.writeFileSync(deployFileName, yaml.stringify(deployContent), 'utf8')
+    applyDeployment(deployFileName, inputs.namespace) 
+    
+    // 新建vip
+    const publicipId = await eip.createPublicip();
+    const subnetID = await getCCINetworkSubnetID(inputs);
+    const loadbalancer = await elb.createLoadbalancer(subnetID);
+    const vipPortId = await elb.getLoadbalancerVipPortIdByLoadbalancer(loadbalancer);
+    await eip.updatePublicip(publicipId, vipPortId);
+    
+    // 新建Service
+    const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
+    const serviceFileName = 'service-' + utils.getRandomByDigit(8) + '.yml';
+    let serviceContent = new Service(inputs, elbId);
+    fs.writeFileSync(serviceFileName, yaml.stringify(serviceContent), 'utf8')
+    applyService(serviceFileName, inputs.namespace) 
+    
+    // 新建Ingress
+    const ingressFileName = 'ingress-' + utils.getRandomByDigit(8) + '.yml';
+    let ingressContent = new Ingress(inputs, elbId);
+    fs.writeFileSync(ingressFileName, yaml.stringify(ingressContent), 'utf8')
+    applyIngress(ingressFileName, inputs.namespace)
+  
+}
+
+/**
+ * 检查命名空间是否存在
+ * @param namespace
+ * @returns
+ */
+export function isNamespaceExist(namespace: string): boolean {
   let isExist = false
   try {
     const result = cp.execSync(`kubectl get ns | awk '{if (NR > 1) {print $1}}'`).toString()
-    if (result.includes(inputs.namespace)) {
+    if (result.includes(namespace)) {
       isExist = true
     }
   } catch(error) {
-    core.info(`${inputs.namespace}` + ' namespace does not exist.')
+    core.info(`${namespace}` + ' namespace does not exist.')
     isExist = false
   }
   return isExist
@@ -58,7 +133,7 @@ export function isDeploymentExist(inputs: context.Inputs): boolean {
       isExist = true
     }
   } catch(error) {
-    core.info('xxxx deployment does not exist.')
+    core.info(inputs.deployment + ' deployment does not exist.')
     isExist = false
   }
   return isExist

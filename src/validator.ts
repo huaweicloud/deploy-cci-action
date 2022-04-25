@@ -66,13 +66,10 @@ import * as mime from 'mime'
    * @returns
    */
    export function checkDeployment(deployment: string): boolean {
-     if (deployment) {
-      const deploymentReg1 = new RegExp(/^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$/)
-      const deploymentReg2 = new RegExp(/^[a-z0-9]$/)
-      const isSpecialCharacterConnector = deployment.includes("..") || deployment.includes(".-") || deployment.includes("-.");
-      return (deploymentReg1.test(deployment) || deploymentReg2.test(deployment) ) && !isSpecialCharacterConnector;
-     }
-    return true;
+    const deploymentReg1 = new RegExp(/^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$/)
+    const deploymentReg2 = new RegExp(/^[a-z0-9]$/)
+    const isSpecialCharacterConnector = deployment.includes("..") || deployment.includes(".-") || deployment.includes("-.");
+    return (deploymentReg1.test(deployment) || deploymentReg2.test(deployment) ) && !isSpecialCharacterConnector;
   }
   
   /**
@@ -81,24 +78,26 @@ import * as mime from 'mime'
    * @returns
    */
   export function checkManifest(manifest: string): boolean {
-    const manifestPath = path.resolve(manifest)
-    if (!fs.existsSync(manifestPath)) {
-      core.info('Manifest file does not exist.')
-      return false
-    }
-    const mimeType = mime.getType(manifestPath)
-    if (mimeType != 'text/yaml') {
-      core.info('Manifest file must be yaml/yml file.')
-      return false
-    }
-    const stat = fs.statSync(manifestPath)
-    if (stat.isDirectory()) {
-      core.info('Manifest file can not be a directory.')
-      return false
-    }
-    if (stat.size / 1024 > 20 || stat.size <= 0) {
-      core.info('The file cannot be larger than 20KB.')
-      return false
+    if (manifest) {
+      const manifestPath = path.resolve(manifest)
+      if (!fs.existsSync(manifestPath)) {
+        core.info('Manifest file does not exist.')
+        return false
+      }
+      const mimeType = mime.getType(manifestPath)
+      if (mimeType != 'text/yaml') {
+        core.info('Manifest file must be yaml/yml file.')
+        return false
+      }
+      const stat = fs.statSync(manifestPath)
+      if (stat.isDirectory()) {
+        core.info('Manifest file can not be a directory.')
+        return false
+      }
+      if (stat.size / 1024 > 20 || stat.size <= 0) {
+        core.info('The file cannot be larger than 20KB.')
+        return false
+      }
     }
     return true
   }

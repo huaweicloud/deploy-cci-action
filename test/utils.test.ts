@@ -5,6 +5,7 @@ beforeEach(() => {
     jest.resetAllMocks();
 });
 
+
 describe('test whether at least one of the deployment and manifest parameter', () => {
         const testCase = [
         {   description: 'deployment和manifest同时存在', 
@@ -14,12 +15,12 @@ describe('test whether at least one of the deployment and manifest parameter', (
                 imageList: ['']
             }, result: true
         },
-        {   description: 'deployment和manifest同时不存在', 
+        {   description: 'deployment存在和manifest不存在', 
             input: {
                 accessKey: '', secretKey: '', projectId: '', region: '', namespace: '',
-                deployment: '', manifest: '',
+                deployment: 'cci-deployment', manifest: '',
                 imageList: ['']
-            }, result: false
+            }, result: true
         },
     ]
     testCase.forEach(item => {
