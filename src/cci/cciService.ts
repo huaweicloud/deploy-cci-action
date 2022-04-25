@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import yaml from 'yaml'
 import * as fs from 'fs'
+import * as path from 'path'
 import * as cp from 'child_process'
 import * as context from '../context'
 import * as utils from '../utils'
@@ -68,16 +69,36 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
 }
 
 /**
+ * 负载创建或者更新
+ * @param inputs
+ * @returns
+ */
+ export async function createOrUpdateDeployment(inputs: context.Inputs): Promise<void> {
+  if (!isDeploymentExist(inputs)) {
+    core.info('deployment does not exist.')
+    await createDeployment(inputs)
+  } else {
+    await updateDeployment(inputs)
+  }
+ }
+
+/**
  * 负载创建
  * @param inputs
  * @returns
  */
  export async function createDeployment(inputs: context.Inputs): Promise<void> {
-    // 新建Deployment
-    const deployFileName = 'deployment-' + utils.getRandomByDigit(8) + '.yml'
-    let deployContent = new Deployment(inputs)
-    fs.writeFileSync(deployFileName, yaml.stringify(deployContent), 'utf8')
-    applyDeployment(deployFileName, inputs.namespace) 
+    if (inputs.manifest) { // 根据用户yaml文件新建Deployment
+      // 替换镜像地址
+      await updateImage(inputs.manifest, inputs.image)
+      applyDeployment(inputs.manifest, inputs.namespace)
+    } else {
+      const deployFileName = 'deployment-' + utils.getRandomByDigit(8) + '.yml'
+      let deployContent = new Deployment(inputs)
+      fs.writeFileSync(deployFileName, yaml.stringify(deployContent), 'utf8')
+      applyDeployment(deployFileName, inputs.namespace) 
+    }
+    
     
     // 新建vip
     const publicipId = await eip.createPublicip();
@@ -99,6 +120,62 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
     fs.writeFileSync(ingressFileName, yaml.stringify(ingressContent), 'utf8')
     applyIngress(ingressFileName, inputs.namespace)
   
+}
+
+/**
+ * 更新创建
+ * @param inputs
+ * @returns
+ */
+ export async function updateDeployment(inputs: context.Inputs): Promise<void> {
+  if (inputs.manifest) { // 根据用户yaml文件更新Deployment
+    // 替换镜像地址
+    await updateImage(inputs.manifest, inputs.image)
+    applyDeployment(inputs.manifest, inputs.namespace)
+  } else {
+    // 获取镜像名称
+    const result = await (
+      cp.execSync(`kubectl get deployment ${inputs.deployment} -o=jsonpath='{$.spec.template.spec.containers[*].name}' -n ${inputs.namespace}`) || ''
+    ).toString()
+
+    // 更新镜像
+    await (
+      cp.execSync(`kubectl set image deploy ${inputs.deployment} ${result}=${inputs.image} -n ${inputs.namespace}`) || ''
+    ).toString()
+  }
+  
+  // 新建vip
+  const publicipId = await eip.createPublicip();
+  const subnetID = await getCCINetworkSubnetID(inputs);
+  const loadbalancer = await elb.createLoadbalancer(subnetID);
+  const vipPortId = await elb.getLoadbalancerVipPortIdByLoadbalancer(loadbalancer);
+  await eip.updatePublicip(publicipId, vipPortId);
+  
+  // 新建Service
+  const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
+  const serviceFileName = 'service-' + utils.getRandomByDigit(8) + '.yml';
+  let serviceContent = new Service(inputs, elbId);
+  fs.writeFileSync(serviceFileName, yaml.stringify(serviceContent), 'utf8')
+  applyService(serviceFileName, inputs.namespace) 
+  
+  // 新建Ingress
+  const ingressFileName = 'ingress-' + utils.getRandomByDigit(8) + '.yml';
+  let ingressContent = new Ingress(inputs, elbId);
+  fs.writeFileSync(ingressFileName, yaml.stringify(ingressContent), 'utf8')
+  applyIngress(ingressFileName, inputs.namespace)
+
+}
+
+/*
+ * 更新k8s模板文件的镜像url
+ */
+export async function updateImage(filePath: string, image: string): Promise<void> {
+  core.info('update manifest file')
+  const manifestPath = path.resolve(filePath)
+
+  const data = fs.readFileSync(manifestPath, 'utf8')
+  const placeholder = data.replace(RegExp('image: .*'), "image: '" + image + "'")
+  fs.writeFileSync(manifestPath, placeholder, 'utf8')
 }
 
 /**
