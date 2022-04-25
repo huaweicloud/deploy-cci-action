@@ -43,7 +43,7 @@ export function checkInputs(inputs: context.Inputs): boolean {
     }
   }
 
-  if (!validator.checkImageList(inputs)) {
+  if (!validator.checkImage(inputs)) {
     core.info('image_list is not correct.')
     return false
   }

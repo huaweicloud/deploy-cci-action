@@ -25,6 +25,14 @@ export async function run() {
   //不存在即新建命名空间和绑定网络
   await cci.createNamespace(inputs)
 
+  if (!cci.isDeploymentExist(inputs)) {
+    core.info('deployment does not exist.')
+    await cci.createDeployment(inputs)
+  } else {
+    
+  }
+
+
   // 替换镜像地址
   await image.updateImage(inputs)
 

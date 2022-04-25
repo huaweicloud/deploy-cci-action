@@ -9,7 +9,7 @@ export class Deployment {
         this.metadata = new Metadata(inputs.deployment, inputs.namespace);
         this.spec = new Spec(new SpecSelector(new MatchLabels(inputs.deployment)), 
                              new Template(new TemplateMetadata(new Labels(inputs.deployment)), 
-                                          new TemplateSpec([new Container(inputs.imageList[0],[new Port()], new Resources(new Resource(), new Resource()))], 
+                                          new TemplateSpec([new Container(inputs.image[0],[new Port()], new Resources(new Resource(), new Resource()))], 
                                                            [new ImagePullSecret()])));
         
         

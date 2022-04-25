@@ -110,12 +110,14 @@ import * as mime from 'mime'
    export function isDeploymentNameConsistent(deployment: string, manifest: string): boolean {
     const file = fs.readFileSync(manifest, 'utf8')
     const obsJson = yaml.parse(file);
+
     const metadata = obsJson.metadata;
-    const deploymentName = metadata.name;
     if (metadata == null && metadata == undefined) {
       core.info('manifest file is not correct.')
       return false
     }
+
+    const deploymentName = metadata.name;
     if (deploymentName == null && deploymentName == undefined) {
       core.info('manifest file is not correct.')
       return false
@@ -128,29 +130,19 @@ import * as mime from 'mime'
   }
   
   /**
-   * 检查镜像列表是否合法
-   * @param string[]
+   * 检查镜像是否合法
+   * @param inputs
    * @returns
    */
-  export function checkImageList(inputs: context.Inputs): boolean {
-    const manifestPath = path.resolve(inputs.manifest)
-    const data = fs.readFileSync(manifestPath, 'utf8')
-    const len = data.split('image: ').length - 1
-    if (len != inputs.imageList.length) {
-      core.info('The length of image_list is the same as that of list manifest.')
+  export function checkImage(inputs: context.Inputs): boolean {
+    // cci region和swr region需要一致
+    if (
+      new RegExp('swr..{5,20}.myhuaweicloud.com').test(inputs.image) &&
+      !inputs.image.includes(inputs.region)
+    ) {
+      core.info('The regions of cci and swr must be the same.')
       return false
     }
-  
-    // cci region和swr region需要一致
-    const imageArray = inputs.imageList
-    for (let i = 0; i < imageArray.length; i++) {
-      if (
-        new RegExp('swr..{5,20}.myhuaweicloud.com').test(imageArray[i]) &&
-        !imageArray[i].includes(inputs.region)
-      ) {
-        core.info('The regions of cci and swr must be the same.')
-        return false
-      }
-    }
+    
     return true
   }

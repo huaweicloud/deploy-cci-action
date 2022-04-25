@@ -8,7 +8,7 @@ export interface Inputs {
   namespace: string
   deployment: string
   manifest: string
-  imageList: string[]
+  image: string
 }
 
 export function getInputs(): Inputs {
@@ -20,6 +20,6 @@ export function getInputs(): Inputs {
     namespace: core.getInput('namespace', {required: true}),
     deployment: core.getInput('deployment', {required: true}),
     manifest: core.getInput('manifest', {required: false}),
-    imageList: core.getMultilineInput('image_list', {required: true})
+    image: core.getInput('image', {required: true})
   }
 }

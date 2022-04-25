@@ -10,11 +10,11 @@ export async function updateImage(inputs: context.Inputs): Promise<void> {
   core.info('update manifest file')
   const manifestPath = path.resolve(inputs.manifest)
 
-  await replaceMatchingFileContent(inputs.imageList, manifestPath)
+  await replaceMatchingFileContent(inputs.image, manifestPath)
 }
 
 export async function replaceMatchingFileContent(
-  imageArray: string[],
+  imageArray: string,
   manifestPath: string
 ): Promise<void> {
   /*

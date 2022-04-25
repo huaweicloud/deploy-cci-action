@@ -8,19 +8,26 @@ inputs:
   secret_key:
     description: "Secret access key"
     required: true
+  project_id:
+    description: "项目ID，可以在华为云我的凭证获取"
+    required: true
   region:
     description: 'Region'
     required: true
     default: 'cn-north-4'
+  namespace:
+    description: "华为云CCI命名空间名称"
+    required: true
+  deployment:
+    description: "华为云CCI命名负载名称"
+    required: true
   manifest:
     description: "The kubernetes deployment yaml file"
-    required: true
-  image_list:
-    description: 镜像列表，根据manifest文件镜像个数来填image_list.default提供了输入镜像列表的例子，实际使用需要自己替换
-    required: true 
-    default: |
-             library/nginx:perl
-             swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1  
+    required: false
+  image:
+    description: 镜像地址
+    required: false 
+    default: swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1  
 branding:
   icon: 'cloud'
   color: 'red'
