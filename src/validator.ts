@@ -1,4 +1,3 @@
-import * as context from './context'
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import yaml from 'yaml'

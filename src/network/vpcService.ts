@@ -3,12 +3,9 @@ import * as context from '../context'
 import * as utils from '../utils'
 const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 const vpc = require("@huaweicloud/huaweicloud-sdk-vpc");
-
+import vpcv3 = require('@huaweicloud/huaweicloud-sdk-vpc/v3/public-api');
 import { SubnetInfo } from './model/SubnetInfo';
 import { SecurityGroupRule } from './model/SecurityGroupRule';
-import { VpcClient } from '@huaweicloud/huaweicloud-sdk-vpc/v3/VpcClient';
-import { ListSecurityGroupsRequest } from '@huaweicloud/huaweicloud-sdk-vpc/v3/model/ListSecurityGroupsRequest';
-import { ListSecurityGroupsResponse } from '@huaweicloud/huaweicloud-sdk-vpc/v3/model/ListSecurityGroupsResponse';
 
 
 /**
@@ -16,8 +13,7 @@ import { ListSecurityGroupsResponse } from '@huaweicloud/huaweicloud-sdk-vpc/v3/
  * @param 
  * @returns
  */
-export async function listDefaultCCISecurityGroups(): Promise<string> {
-  const inputs: context.Inputs = context.getInputs()
+export async function listDefaultCCISecurityGroups(inputs: context.Inputs): Promise<string> {
   const ak = inputs.accessKey;
   const sk = inputs.secretKey;
   const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
@@ -27,15 +23,15 @@ export async function listDefaultCCISecurityGroups(): Promise<string> {
                        .withAk(ak)
                        .withSk(sk)
                        .withProjectId(projectId)
-  const client = VpcClient.newBuilder()
+  const client = vpcv3.VpcClient.newBuilder()
                           .withCredential(credentials)
                           .withEndpoint(endpoint)
                           .build();
-  const request = new ListSecurityGroupsRequest();
+  const request = new vpcv3.ListSecurityGroupsRequest();
   const listRequestName = [];
   listRequestName.push("kubernetes.io-default-sg");
   request.name = listRequestName;
-  const result: ListSecurityGroupsResponse = await client.listSecurityGroups(request);
+  const result: vpcv3.ListSecurityGroupsResponse = await client.listSecurityGroups(request);
   const obj = JSON.parse(JSON.stringify(result));
   if (obj.httpStatusCode != 200) {
     core.setFailed('List Security Groups Failed.');

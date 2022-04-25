@@ -9,8 +9,7 @@ const iam = require("@huaweicloud/huaweicloud-sdk-iam");
  * @param 
  * @returns
  */
-export async function keystoneListAuthDomains(): Promise<string> {
-  const inputs: context.Inputs = context.getInputs()
+export async function keystoneListAuthDomains(inputs: context.Inputs): Promise<string> {
   const ak = inputs.accessKey;
   const sk = inputs.secretKey;
   const endpoint = "https://iam." + inputs.region + ".myhuaweicloud.com";

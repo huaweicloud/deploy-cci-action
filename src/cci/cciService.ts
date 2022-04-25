@@ -55,8 +55,8 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
    applyNamespace(namespaceFileName)
    
    // 新建Network
-   const securityGroupId = await vpc.listDefaultCCISecurityGroups();
-   const domainId = await iam.keystoneListAuthDomains();
+   const securityGroupId = await vpc.listDefaultCCISecurityGroups(inputs);
+   const domainId = await iam.keystoneListAuthDomains(inputs);
    const availableZone = getAvailableZone(inputs.region);
    const networkFileName = 'network-' + utils.getRandomByDigit(8) + '.yml';
    const vpcId = await vpc.createVpc();
