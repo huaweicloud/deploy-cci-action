@@ -50,7 +50,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
 
     // 新建Namespace
    const namespaceFileName = 'namespace-' + utils.getRandomByDigit(8) + '.yml';
-   let namespaceContent = new Namespace(inputs.namespace);
+   const namespaceContent = new Namespace(inputs.namespace);
    fs.writeFileSync(namespaceFileName, yaml.stringify(namespaceContent), 'utf8')
    applyNamespace(namespaceFileName)
    
@@ -61,7 +61,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
    const networkFileName = 'network-' + utils.getRandomByDigit(8) + '.yml';
    const vpcId = await vpc.createVpc();
    const subnetInfo: SubnetInfo = await vpc.createSubnet(vpcId);
-   let networkContent = new Network(inputs.namespace, securityGroupId, domainId, inputs.projectId, 
+   const networkContent = new Network(inputs.namespace, securityGroupId, domainId, inputs.projectId, 
                                     availableZone, subnetInfo.cidr, vpcId, subnetInfo.neutron_network_id, subnetInfo.neutron_subnet_id);
    fs.writeFileSync(networkFileName, yaml.stringify(networkContent), 'utf8')
    applyNetwork(networkFileName, inputs.namespace)
@@ -94,7 +94,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
       applyDeployment(inputs.manifest, inputs.namespace)
     } else {
       const deployFileName = 'deployment-' + utils.getRandomByDigit(8) + '.yml'
-      let deployContent = new Deployment(inputs)
+      const deployContent = new Deployment(inputs)
       fs.writeFileSync(deployFileName, yaml.stringify(deployContent), 'utf8')
       applyDeployment(deployFileName, inputs.namespace) 
     }
@@ -110,13 +110,13 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
     // 新建Service
     const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
     const serviceFileName = 'service-' + utils.getRandomByDigit(8) + '.yml';
-    let serviceContent = new Service(inputs, elbId);
+    const serviceContent = new Service(inputs, elbId);
     fs.writeFileSync(serviceFileName, yaml.stringify(serviceContent), 'utf8')
     applyService(serviceFileName, inputs.namespace) 
     
     // 新建Ingress
     const ingressFileName = 'ingress-' + utils.getRandomByDigit(8) + '.yml';
-    let ingressContent = new Ingress(inputs, elbId);
+    const ingressContent = new Ingress(inputs, elbId);
     fs.writeFileSync(ingressFileName, yaml.stringify(ingressContent), 'utf8')
     applyIngress(ingressFileName, inputs.namespace)
   
@@ -154,13 +154,13 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
   // 新建Service
   const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
   const serviceFileName = 'service-' + utils.getRandomByDigit(8) + '.yml';
-  let serviceContent = new Service(inputs, elbId);
+  const serviceContent = new Service(inputs, elbId);
   fs.writeFileSync(serviceFileName, yaml.stringify(serviceContent), 'utf8')
   applyService(serviceFileName, inputs.namespace) 
   
   // 新建Ingress
   const ingressFileName = 'ingress-' + utils.getRandomByDigit(8) + '.yml';
-  let ingressContent = new Ingress(inputs, elbId);
+  const ingressContent = new Ingress(inputs, elbId);
   fs.writeFileSync(ingressFileName, yaml.stringify(ingressContent), 'utf8')
   applyIngress(ingressFileName, inputs.namespace)
 
