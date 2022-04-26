@@ -27,18 +27,18 @@
     "yaml": "^2.0.1"
   },
   "devDependencies": {
+    "@cloud/eslint-config-cbc": "^1.7.2",
     "@types/jest": "^27.4.1",
     "@types/mime": "^2.0.3",
     "@types/node": "^17.0.23",
-    "jest": "^27.5.1",
-    "mime": "^3.0.0",
-    "@cloud/eslint-config-cbc": "^1.7.2",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^4.28.4",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
     "eslint-config-bevry": "^3.27.0",
     "eslint-plugin-mocha": "^9.0.0",
+    "jest": "^27.5.1",
+    "mime": "^3.0.0",
     "typescript": "^3.8.3"
   }
 }

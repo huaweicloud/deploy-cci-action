@@ -14,18 +14,9 @@ import { SecurityGroupRule } from './model/SecurityGroupRule';
  * @returns
  */
 export async function listDefaultCCISecurityGroups(inputs: context.Inputs): Promise<string> {
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
-  const projectId = inputs.projectId;
-
-  const credentials = new huaweicore.BasicCredentials()
-                       .withAk(ak)
-                       .withSk(sk)
-                       .withProjectId(projectId)
   const client = vpcv3.VpcClient.newBuilder()
-                          .withCredential(credentials)
-                          .withEndpoint(endpoint)
+                          .withCredential(utils.getBasicCredentials(inputs))
+                          .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                           .build();
   const request = new vpcv3.ListSecurityGroupsRequest();
   const listRequestName = [];
@@ -38,8 +29,8 @@ export async function listDefaultCCISecurityGroups(inputs: context.Inputs): Prom
    } 
   const securityGroups = obj.security_groups;
   if (securityGroups.length == 0) {
-    const securityGroupId = await createDefaultCCISecurityGroups();
-    await createDefaultCCISecurityGroupRule(securityGroupId);
+    const securityGroupId = await createDefaultCCISecurityGroups(inputs);
+    await createDefaultCCISecurityGroupRule(securityGroupId, inputs);
   }
   return Promise.resolve(securityGroups[0].id);
 }
@@ -49,20 +40,10 @@ export async function listDefaultCCISecurityGroups(inputs: context.Inputs): Prom
  * @param 
  * @returns
  */
-export async function createDefaultCCISecurityGroups(): Promise<string> {
-  const inputs: context.Inputs = context.getInputs()
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
-  const projectId = inputs.projectId;
-
-  const credentials = new huaweicore.BasicCredentials()
-                     .withAk(ak)
-                     .withSk(sk)
-                     .withProjectId(projectId)
+export async function createDefaultCCISecurityGroups(inputs: context.Inputs): Promise<string> {
   const client = vpc.VpcClient.newBuilder()
-                              .withCredential(credentials)
-                              .withEndpoint(endpoint)
+                              .withCredential(utils.getBasicCredentials(inputs))
+                              .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                               .build();
   const request = new vpc.CreateSecurityGroupRequest();
   const body = new vpc.CreateSecurityGroupRequestBody();
@@ -83,20 +64,10 @@ export async function createDefaultCCISecurityGroups(): Promise<string> {
  * @param 
  * @returns
  */
-export async function createDefaultCCISecurityGroupRule(securityGroupId: string): Promise<void> {
-  const inputs: context.Inputs = context.getInputs()
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
-  const projectId = inputs.projectId;
-
-  const credentials = new huaweicore.BasicCredentials()
-                     .withAk(ak)
-                     .withSk(sk)
-                     .withProjectId(projectId)
+export async function createDefaultCCISecurityGroupRule(securityGroupId: string, inputs: context.Inputs): Promise<void> {
   const client = vpc.VpcClient.newBuilder()
-                              .withCredential(credentials)
-                              .withEndpoint(endpoint)
+                              .withCredential(utils.getBasicCredentials(inputs))
+                              .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                               .build();
   const securityGroupRules: Array<SecurityGroupRule> = [new SecurityGroupRule(securityGroupId, "ICMP", "8-0"), 
                                                       new SecurityGroupRule(securityGroupId, "TCP", "1-65535"),
@@ -129,22 +100,13 @@ export async function createDefaultCCISecurityGroupRule(securityGroupId: string)
  * @param 
  * @returns
  */
-export async function createVpc(): Promise<string> {
-  const inputs: context.Inputs = context.getInputs()
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
-  const projectId = inputs.projectId;
+export async function createVpc(inputs: context.Inputs): Promise<string> {
   const vpcName = "CCI-VPC-" + utils.getRandomByDigit(8);
   const defaultCidr = "192.168.0.0/16";
 
-  const credentials = new huaweicore.BasicCredentials()
-                       .withAk(ak)
-                       .withSk(sk)
-                       .withProjectId(projectId)
   const client = vpc.VpcClient.newBuilder()
-                          .withCredential(credentials)
-                          .withEndpoint(endpoint)
+                          .withCredential(utils.getBasicCredentials(inputs))
+                          .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                           .build();
   const request = new vpc.CreateVpcRequest();
   const body = new vpc.CreateVpcRequestBody();
@@ -168,21 +130,13 @@ export async function createVpc(): Promise<string> {
  */
 export async function createSubnet(vpcId: string): Promise<SubnetInfo> {
   const inputs: context.Inputs = context.getInputs()
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
-  const projectId = inputs.projectId;
   const subnetName = "cci-subnet-" + utils.getRandomByDigit(8);
   const defaultCidr = "192.168.0.0/18";
   const defaultGatewayIp = "192.168.0.1";
 
-  const credentials = new huaweicore.BasicCredentials()
-                       .withAk(ak)
-                       .withSk(sk)
-                       .withProjectId(projectId)
   const client = vpc.VpcClient.newBuilder()
-                          .withCredential(credentials)
-                          .withEndpoint(endpoint)
+                          .withCredential(utils.getBasicCredentials(inputs))
+                          .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                           .build();
   const request = new vpc.CreateSubnetRequest();
   const body = new vpc.CreateSubnetRequestBody();

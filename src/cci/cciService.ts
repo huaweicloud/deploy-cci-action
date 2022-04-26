@@ -59,7 +59,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
    const domainId = await iam.keystoneListAuthDomains(inputs);
    const availableZone = getAvailableZone(inputs.region);
    const networkFileName = 'network-' + utils.getRandomByDigit(8) + '.yml';
-   const vpcId = await vpc.createVpc();
+   const vpcId = await vpc.createVpc(inputs);
    const subnetInfo: SubnetInfo = await vpc.createSubnet(vpcId);
    const networkContent = new Network(inputs.namespace, securityGroupId, domainId, inputs.projectId, 
                                     availableZone, subnetInfo.cidr, vpcId, subnetInfo.neutron_network_id, subnetInfo.neutron_subnet_id);
@@ -101,11 +101,11 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
     
     
     // 新建vip
-    const publicipId = await eip.createPublicip();
+    const publicipId = await eip.createPublicip(inputs);
     const subnetID = await getCCINetworkSubnetID(inputs);
-    const loadbalancer = await elb.createLoadbalancer(subnetID);
+    const loadbalancer = await elb.createLoadbalancer(subnetID,inputs);
     const vipPortId = await elb.getLoadbalancerVipPortIdByLoadbalancer(loadbalancer);
-    await eip.updatePublicip(publicipId, vipPortId);
+    await eip.updatePublicip(publicipId, vipPortId, inputs);
     
     // 新建Service
     const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
@@ -145,11 +145,11 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
   }
   
   // 新建vip
-  const publicipId = await eip.createPublicip();
+  const publicipId = await eip.createPublicip(inputs);
   const subnetID = await getCCINetworkSubnetID(inputs);
-  const loadbalancer = await elb.createLoadbalancer(subnetID);
+  const loadbalancer = await elb.createLoadbalancer(subnetID, inputs);
   const vipPortId = await elb.getLoadbalancerVipPortIdByLoadbalancer(loadbalancer);
-  await eip.updatePublicip(publicipId, vipPortId);
+  await eip.updatePublicip(publicipId, vipPortId, inputs);
   
   // 新建Service
   const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
@@ -318,15 +318,9 @@ export async function getCCINetworkSubnetID(inputs: context.Inputs): Promise<str
  * @returns
  */
 export async function getCCINetwork(inputs: context.Inputs): Promise<ListNetworkingCciIoV1beta1NamespacedNetworkResponse> {
-  const endpoint = "https://cci." + inputs.region + ".myhuaweicloud.com";
-
-  const credentials = new huaweicore.BasicCredentials()
-                       .withAk(inputs.accessKey)
-                       .withSk(inputs.secretKey)
-                       .withProjectId(inputs.projectId)
   const client = CciClient.newBuilder()
-                          .withCredential(credentials)
-                          .withEndpoint(endpoint)
+                          .withCredential(utils.getBasicCredentials(inputs))
+                          .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                           .build();
   const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest();
   request.withNamespace(inputs.namespace);

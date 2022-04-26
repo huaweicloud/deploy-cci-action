@@ -1,6 +1,7 @@
 import * as context from './context'
 import * as validator from './validator'
 import * as core from '@actions/core'
+const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 
 
 /**
@@ -62,4 +63,22 @@ export function getRandomByDigit(digitNumber: number): number {
     )
   }
   return Math.round(Math.random() * Math.pow(10, digitNumber));
+}
+
+
+export function getBasicCredentials(inputs: context.Inputs){
+  return new huaweicore.BasicCredentials()
+          .withAk(inputs.accessKey)
+          .withSk(inputs.secretKey)
+          .withProjectId(inputs.projectId)
+}
+
+export function getGlobalCredentials(inputs: context.Inputs){
+  return new huaweicore.GlobalCredentials()
+          .withAk(inputs.accessKey)
+          .withSk(inputs.secretKey)
+}
+
+export function getEndpoint(region: string, endpointServiceName: context.EndpointServiceName){
+  return "https://" + endpointServiceName + "." + region + ".myhuaweicloud.com";
 }

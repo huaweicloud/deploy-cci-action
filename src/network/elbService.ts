@@ -58,17 +58,10 @@ export async function getLoadbalancerIdByLoadbalancer(createLoadbalancerResponse
  * @param inputs
  * @returns
  */
-export async function createLoadbalancer(vipSubnetId: string): Promise<CreateLoadbalancerResponse> {
-  const inputs: context.Inputs = context.getInputs();
-  const endpoint = "https://elb." + inputs.region + ".myhuaweicloud.com";
-
-  const credentials = new huaweicore.BasicCredentials()
-                       .withAk(inputs.accessKey)
-                       .withSk(inputs.secretKey)
-                       .withProjectId(inputs.projectId)
+export async function createLoadbalancer(vipSubnetId: string, inputs: context.Inputs): Promise<CreateLoadbalancerResponse> {
   const client = ElbClient.newBuilder()
-                          .withCredential(credentials)
-                          .withEndpoint(endpoint)
+                          .withCredential(utils.getBasicCredentials(inputs))
+                          .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.ELB))
                           .build();
   const request = new CreateLoadbalancerRequest();
   const body = new CreateLoadbalancerRequestBody();

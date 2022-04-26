@@ -10,21 +10,12 @@ const eip = require("@huaweicloud/huaweicloud-sdk-eip");
  * @param 
  * @returns
  */
-export async function createPublicip(): Promise<string> {
-  const inputs: context.Inputs = context.getInputs()
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
-  const projectId = inputs.projectId;
+export async function createPublicip(inputs: context.Inputs): Promise<string> {
   const bandwidthName = 'bandwidth-' + utils.getRandomByDigit(8);
 
-  const credentials = new huaweicore.BasicCredentials()
-                       .withAk(ak)
-                       .withSk(sk)
-                       .withProjectId(projectId)
   const client = eip.EipClient.newBuilder()
-                              .withCredential(credentials)
-                              .withEndpoint(endpoint)
+                              .withCredential(utils.getBasicCredentials(inputs))
+                              .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                               .build();
   const request = new eip.CreatePublicipRequest();
   const body = new eip.CreatePublicipRequestBody();
@@ -52,20 +43,10 @@ export async function createPublicip(): Promise<string> {
  * @param 
  * @returns
  */
-export async function updatePublicip(publicipId: string, portId: string): Promise<void> {
-  const inputs: context.Inputs = context.getInputs()
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://vpc." + inputs.region + ".myhuaweicloud.com";
-  const projectId = inputs.projectId;
-
-  const credentials = new huaweicore.BasicCredentials()
-                       .withAk(ak)
-                       .withSk(sk)
-                       .withProjectId(projectId)
+export async function updatePublicip(publicipId: string, portId: string, inputs: context.Inputs): Promise<void> {
   const client = eip.EipClient.newBuilder()
-                              .withCredential(credentials)
-                              .withEndpoint(endpoint)
+                              .withCredential(utils.getBasicCredentials(inputs))
+                              .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
                               .build();
   const request = new eip.UpdatePublicipRequest();
   request.publicipId = publicipId;

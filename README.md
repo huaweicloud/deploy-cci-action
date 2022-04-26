@@ -91,7 +91,7 @@ jobs:
 | manifest    |   false    |         | 负载deployment描述yaml文件|
 
 ## **action片段使用介绍**
-### 从SWR容器镜像中心部署CCI容器实例
+### 从SWR容器镜像中心获取镜像部署CCI容器实例
 ```yaml
 - name: deploy to cci
       uses: huaweicloud/deploy-cci-action@v1.0.1
@@ -101,11 +101,38 @@ jobs:
         secret_key: ${{ secrets.SECRETACCESSKEY }}
         project_id: 'project_id'
         region: ${{ env.REGION_ID }}
-        namespace: 'CCI命名空间'
-        deployment: 'CCI负载名称'
+        namespace: 'namespace-name'
+        deployment: 'deployment-name'
         image: nginx:lates
 ```
-
+### 从SWR我的镜像获取镜像部署CCI容器实例
+```yaml
+- name: deploy to cci
+      uses: huaweicloud/deploy-cci-action@v1.0.1
+      id: deploy-to-cci
+      with:
+        access_key: ${{ secrets.ACCESSKEY }}
+        secret_key: ${{ secrets.SECRETACCESSKEY }}
+        project_id: 'project_id'
+        region: ${{ env.REGION_ID }}
+        namespace: 'namespace-name'
+        deployment: 'deployment-name'
+        image: swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1
+```
+### 根据提供的yaml文件部署CCI容器实例
+```yaml
+- name: deploy to cci
+      uses: huaweicloud/deploy-cci-action@v1.0.1
+      id: deploy-to-cci
+      with:
+        access_key: ${{ secrets.ACCESSKEY }}
+        secret_key: ${{ secrets.SECRETACCESSKEY }}
+        project_id: 'project_id'
+        region: ${{ env.REGION_ID }}
+        namespace: 'namespace-name'
+        deployment: 'deployment-name'
+        image: swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1
+```
 
 ### 2.部署Kubernetes样例yaml文件
 以下示例为一个名为cci-deployment的Deployment负载，负载在命名空间是cci-namespace-70395701，使用swr.cn-north-4.myhuaweicloud.com/namespace/demo:v1.1t镜像创建两个Pod，每个Pod占用500m core CPU、1G内存。

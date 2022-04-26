@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as context from '../context'
+import * as utils from '../utils'
 
 const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 const iam = require("@huaweicloud/huaweicloud-sdk-iam");
@@ -10,16 +11,9 @@ const iam = require("@huaweicloud/huaweicloud-sdk-iam");
  * @returns
  */
 export async function keystoneListAuthDomains(inputs: context.Inputs): Promise<string> {
-  const ak = inputs.accessKey;
-  const sk = inputs.secretKey;
-  const endpoint = "https://iam." + inputs.region + ".myhuaweicloud.com";
-
-  const credentials = new huaweicore.GlobalCredentials()
-                       .withAk(ak)
-                       .withSk(sk)
   const client = iam.IamClient.newBuilder()
-                            .withCredential(credentials)
-                            .withEndpoint(endpoint)
+                            .withCredential(utils.getGlobalCredentials(inputs))
+                            .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.IAM))
                             .build();
   const request = new iam.KeystoneListAuthDomainsRequest();
   const result = await client.keystoneListAuthDomains(request);

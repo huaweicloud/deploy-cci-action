@@ -23,3 +23,10 @@ export function getInputs(): Inputs {
     image: core.getInput('image', {required: true})
   }
 }
+
+export enum EndpointServiceName {
+  VPC = "vpc",
+  ELB = "elb",
+  IAM = "iam",
+  CCI = "cci",
+}
