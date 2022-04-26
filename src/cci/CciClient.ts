@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import { Constants } from "../Constants";
 import { HcClient } from "@huaweicloud/huaweicloud-sdk-core/HcClient";
 import { ClientBuilder } from "@huaweicloud/huaweicloud-sdk-core/ClientBuilder";
 import { ListNetworkingCciIoV1beta1NamespacedNetworkRequest } from './model/ListNetworkingCciIoV1beta1NamespacedNetworkRequest';
@@ -37,9 +38,9 @@ export const ParamCreater = function () {
          */
         listNetworkingCciIoV1beta1NamespacedNetwork(listNetworkingCciIoV1beta1NamespacedNetworkRequest?: ListNetworkingCciIoV1beta1NamespacedNetworkRequest) {
             const options = {
-                method: "GET",
+                method: Constants.METHOD_GET,
                 url: "/apis/networking.cci.io/v1beta1/namespaces/{namespace}/networks",
-                contentType: "application/json",
+                contentType: Constants.CONTENT_TYPEAPPLICATION_JSON,
                 queryParams: {},
                 pathParams: {},
                 headers: {},

@@ -1,12 +1,14 @@
 import * as core from '@actions/core'
 import * as context from '../context'
 import * as utils from '../utils'
-const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 const vpc = require("@huaweicloud/huaweicloud-sdk-vpc");
 import vpcv3 = require('@huaweicloud/huaweicloud-sdk-vpc/v3/public-api');
 import { SubnetInfo } from './model/SubnetInfo';
 import { SecurityGroupRule } from './model/SecurityGroupRule';
 
+const DAFAULT_CIDR = "192.168.0.0/16";
+const DEFAULT_SUBNET_CIDR = "192.168.0.0/18";
+const DEFAULT_GATEWAY_IP = "192.168.0.1";
 
 /**
  * 查询某租户下默认的安全组列表
@@ -24,7 +26,7 @@ export async function listDefaultCCISecurityGroups(inputs: context.Inputs): Prom
   request.name = listRequestName;
   const result: vpcv3.ListSecurityGroupsResponse = await client.listSecurityGroups(request);
   const obj = JSON.parse(JSON.stringify(result));
-  if (obj.httpStatusCode != 200) {
+  if (obj.httpStatusCode >= 300) {
     core.setFailed('List Security Groups Failed.');
    } 
   const securityGroups = obj.security_groups;
@@ -102,7 +104,6 @@ export async function createDefaultCCISecurityGroupRule(securityGroupId: string,
  */
 export async function createVpc(inputs: context.Inputs): Promise<string> {
   const vpcName = "CCI-VPC-" + utils.getRandomByDigit(8);
-  const defaultCidr = "192.168.0.0/16";
 
   const client = vpc.VpcClient.newBuilder()
                           .withCredential(utils.getBasicCredentials(inputs))
@@ -111,13 +112,13 @@ export async function createVpc(inputs: context.Inputs): Promise<string> {
   const request = new vpc.CreateVpcRequest();
   const body = new vpc.CreateVpcRequestBody();
   const vpcbody = new vpc.CreateVpcOption();
-  vpcbody.withCidr(defaultCidr)
+  vpcbody.withCidr(DAFAULT_CIDR)
          .withName(vpcName);
   body.withVpc(vpcbody);
   request.withBody(body);
   const result = await client.createVpc(request);
   const obj = JSON.parse(JSON.stringify(result));
-  if (obj.httpStatusCode != 200) {
+  if (obj.httpStatusCode >= 300) {
     core.setFailed('List Security Groups Failed.');
    }
   return Promise.resolve(obj.vpc.id);
@@ -131,8 +132,6 @@ export async function createVpc(inputs: context.Inputs): Promise<string> {
 export async function createSubnet(vpcId: string): Promise<SubnetInfo> {
   const inputs: context.Inputs = context.getInputs()
   const subnetName = "cci-subnet-" + utils.getRandomByDigit(8);
-  const defaultCidr = "192.168.0.0/18";
-  const defaultGatewayIp = "192.168.0.1";
 
   const client = vpc.VpcClient.newBuilder()
                           .withCredential(utils.getBasicCredentials(inputs))
@@ -147,14 +146,14 @@ export async function createSubnet(vpcId: string): Promise<SubnetInfo> {
   );
   const subnetbody = new vpc.CreateSubnetOption();
   subnetbody.withName(subnetName)
-   .withCidr(defaultCidr)
+   .withCidr(DEFAULT_SUBNET_CIDR)
    .withVpcId(vpcId)
-   .withGatewayIp(defaultGatewayIp)
+   .withGatewayIp(DEFAULT_GATEWAY_IP)
    .withExtraDhcpOpts(listSubnetExtraDhcpOpts);
   body.withSubnet(subnetbody);
   request.withBody(body);
   const result = await client.createSubnet(request);
-  if (result.httpStatusCode != 200) {
+  if (result.httpStatusCode >= 300) {
     core.setFailed('List Security Groups Failed.');
    }
   const subnetInfo:SubnetInfo = JSON.parse(JSON.stringify(result.subnet));

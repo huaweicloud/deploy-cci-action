@@ -1,6 +1,5 @@
 import * as utils from '../utils'
 import * as context from '../context'
-import huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 import {ElbClient} from './ElbClient';
 import {CreateLoadbalancerRequest} from './model/CreateLoadbalancerRequest';
 import {CreateLoadbalancerResponse} from './model/CreateLoadbalancerResponse';

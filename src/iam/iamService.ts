@@ -2,7 +2,6 @@ import * as core from '@actions/core'
 import * as context from '../context'
 import * as utils from '../utils'
 
-const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 const iam = require("@huaweicloud/huaweicloud-sdk-iam");
 
 /**
@@ -18,7 +17,7 @@ export async function keystoneListAuthDomains(inputs: context.Inputs): Promise<s
   const request = new iam.KeystoneListAuthDomainsRequest();
   const result = await client.keystoneListAuthDomains(request);
   core.info(JSON.stringify(result));
-  if (result.httpStatusCode != 200) {
+  if (result.httpStatusCode >= 300) {
     core.setFailed('Keystone List Auth Domains Failed.');
    } 
   return Promise.resolve((result.domains)[0].id);

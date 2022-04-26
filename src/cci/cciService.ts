@@ -10,7 +10,6 @@ import * as iam from '../iam/iamService'
 import * as eip from '../network/eipService'
 import * as elb from '../network/elbService'
 
-import huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 import {CciClient} from './CciClient';
 import { Namespace } from './manifest/Namespace'
 import { Network } from './manifest/Network'

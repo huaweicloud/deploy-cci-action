@@ -1,3 +1,4 @@
+import { Constants } from "../Constants";
 import { HcClient } from "@huaweicloud/huaweicloud-sdk-core/HcClient";
 import { ClientBuilder } from "@huaweicloud/huaweicloud-sdk-core/ClientBuilder";
 import { CreateLoadbalancerRequest } from './model/CreateLoadbalancerRequest';
@@ -35,9 +36,9 @@ export const ParamCreater = function () {
          */
         createLoadbalancer(createLoadbalancerRequest?: CreateLoadbalancerRequest) {
             const options = {
-                method: "POST",
+                method: Constants.METHOD_POST,
                 url: "/v2/{project_id}/elb/loadbalancers",
-                contentType: "application/json",
+                contentType: Constants.CONTENT_TYPEAPPLICATION_JSON,
                 queryParams: {},
                 pathParams: {},
                 headers: {},

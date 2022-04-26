@@ -2,7 +2,6 @@ import * as core from '@actions/core'
 import * as utils from '../utils'
 import * as context from '../context'
 
-const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 const eip = require("@huaweicloud/huaweicloud-sdk-eip");
 
 /**
@@ -57,7 +56,7 @@ export async function updatePublicip(publicipId: string, portId: string, inputs:
   request.withBody(body);
   const result = await client.updatePublicip(request);
   core.info(result);
-  if (result.httpStatusCode != 200) {
+  if (result.httpStatusCode >= 300 ) {
     core.setFailed('Update Public IP Failed.');
    }
 }
