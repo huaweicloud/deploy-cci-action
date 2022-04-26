@@ -1,6 +1,7 @@
 import * as context from './context'
 import * as validator from './validator'
 import * as core from '@actions/core'
+import * as cp from 'child_process'
 const huaweicore = require('@huaweicloud/huaweicloud-sdk-core');
 
 
@@ -82,3 +83,7 @@ export function getGlobalCredentials(inputs: context.Inputs){
 export function getEndpoint(region: string, endpointServiceName: context.EndpointServiceName){
   return "https://" + endpointServiceName + "." + region + ".myhuaweicloud.com";
 }
+
+export async function execCommand(command: string): Promise<string> {
+  return await (cp.execSync(command) || '').toString()
+  }

@@ -2,7 +2,6 @@ import * as core from '@actions/core'
 import yaml from 'yaml'
 import * as fs from 'fs'
 import * as path from 'path'
-import * as cp from 'child_process'
 import * as context from '../context'
 import * as utils from '../utils'
 import * as vpc from '../network/vpcService'
@@ -133,14 +132,10 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
     applyDeployment(inputs.manifest, inputs.namespace)
   } else {
     // 获取镜像名称
-    const result = await (
-      cp.execSync(`kubectl get deployment ${inputs.deployment} -o=jsonpath='{$.spec.template.spec.containers[*].name}' -n ${inputs.namespace}`) || ''
-    ).toString()
+    const result = await utils.execCommand("kubectl get deployment " + inputs.deployment + " -o=jsonpath='{$.spec.template.spec.containers[0].name}' -n " + inputs.namespace);
 
     // 更新镜像
-    await (
-      cp.execSync(`kubectl set image deploy ${inputs.deployment} ${result}=${inputs.image} -n ${inputs.namespace}`) || ''
-    ).toString()
+    await utils.execCommand("kubectl set image deploy " + inputs.deployment + " " + result + "=" + inputs.image + " -n " + inputs.namespace);
   }
   
   // 新建vip
@@ -182,10 +177,10 @@ export async function updateImage(filePath: string, image: string): Promise<void
  * @param namespace
  * @returns
  */
-export function isNamespaceExist(namespace: string): boolean {
+export async function isNamespaceExist(namespace: string):Promise<boolean> {
   let isExist = false
   try {
-    const result = cp.execSync(`kubectl get ns | awk '{if (NR > 1) {print $1}}'`).toString()
+    const result = await utils.execCommand("kubectl get ns | awk '{if (NR > 1) {print $1}}'");
     if (result.includes(namespace)) {
       isExist = true
     }
@@ -201,10 +196,10 @@ export function isNamespaceExist(namespace: string): boolean {
  * @param inputs
  * @returns
  */
-export function isDeploymentExist(inputs: context.Inputs): boolean {
+export async function isDeploymentExist(inputs: context.Inputs): Promise<boolean> {
   let isExist = false
   try {
-    const result = cp.execSync(`kubectl get deployment -n ${inputs.namespace} | awk '{if (NR > 1) {print $1}}'`).toString()
+    const result = await utils.execCommand("kubectl get deployment -n " + inputs.namespace + " | awk '{if (NR > 1) {print $1}}'")
     if (result.includes(inputs.deployment)) {
       isExist = true
     }
@@ -222,9 +217,7 @@ export function isDeploymentExist(inputs: context.Inputs): boolean {
  */
 export async function applyNamespace(filePath: string): Promise<void> {
   core.info('start apply namespace')
-  const result = await (
-    cp.execSync(`kubectl apply -f ${filePath}`) || ''
-  ).toString()
+  const result = await utils.execCommand("kubectl apply -f " + filePath);
   core.info('deploy cci namespace result: ' + result)
 }
 
@@ -235,9 +228,7 @@ export async function applyNamespace(filePath: string): Promise<void> {
  */
 export async function applyNetwork(filePath: string, namespace: string): Promise<void> {
   core.info('start apply network')
-  const result = await (
-    cp.execSync(`kubectl apply -f ${filePath} -n ${namespace}`) || ''
-  ).toString()
+  const result = await utils.execCommand("kubectl apply -f " + filePath +" -n " + namespace);
   core.info('deploy cci network result: ' + result)
 }
 
@@ -248,9 +239,7 @@ export async function applyNetwork(filePath: string, namespace: string): Promise
  */
 export async function applyDeployment(filePath: string, namespace: string): Promise<void> {
   core.info('start apply deployment')
-  const result = await (
-    cp.execSync(`kubectl apply -f ${filePath} -n ${namespace}`) || ''
-  ).toString()
+  const result = await utils.execCommand("kubectl apply -f " + filePath + " -n " + namespace);
   core.info('deploy cci result: ' + result)
 }
 
@@ -261,9 +250,7 @@ export async function applyDeployment(filePath: string, namespace: string): Prom
  */
 export async function applyService(filePath: string, namespace: string): Promise<void> {
   core.info('start apply Service')
-  const result = await (
-    cp.execSync(`kubectl apply -f ${filePath} -n ${namespace}`) || ''
-  ).toString()
+  const result = await utils.execCommand("kubectl apply -f " + filePath + " -n " + namespace);
   core.info('deploy cci Service result: ' + result)
 }
 
@@ -274,9 +261,7 @@ export async function applyService(filePath: string, namespace: string): Promise
  */
 export async function applyIngress(filePath: string, namespace: string): Promise<void> {
   core.info('start apply Ingress')
-  const result = await (
-    cp.execSync(`kubectl apply -f ${filePath} -n ${namespace}`) || ''
-  ).toString()
+  const result = await utils.execCommand("kubectl apply -f " + filePath + " -n " + namespace);
   core.info('deploy cci Ingress result: ' + result)
 }
 
