@@ -83,14 +83,14 @@ import * as mime from 'mime'
         core.info('Manifest file does not exist.')
         return false
       }
-      const mimeType = mime.getType(manifestPath)
-      if (mimeType != 'text/yaml') {
-        core.info('Manifest file must be yaml/yml file.')
-        return false
-      }
       const stat = fs.statSync(manifestPath)
       if (stat.isDirectory()) {
         core.info('Manifest file can not be a directory.')
+        return false
+      }
+      const mimeType = mime.getType(manifestPath)
+      if (mimeType != 'text/yaml') {
+        core.info('Manifest file must be yaml/yml file.')
         return false
       }
       if (stat.size / 1024 > 20 || stat.size <= 0) {
