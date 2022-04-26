@@ -38,6 +38,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
     "eslint-config-bevry": "^3.27.0",
-    "eslint-plugin-mocha": "^9.0.0"
+    "eslint-plugin-mocha": "^9.0.0",
+    "typescript": "^3.8.3"
   }
 }

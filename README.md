@@ -69,12 +69,43 @@ jobs:
         with:
           access_key: ${{ secrets.ACCESSKEY }}
           secret_key: ${{ secrets.SECRETACCESSKEY }}
+          project_id: 'project_id'
           region: ${{ env.REGION_ID }}
-          manifest: './deployment.yaml' 
-          image_list: |
-            ${{ steps.build-image.outputs.image }}
+          namespace: 'CCI命名空间'
+          deployment: 'CCI负载名称'
+          image: ${{ steps.build-image.outputs.image }}
 
 ```
+
+## **Input**
+
+| Name          | Require | Default | Description |
+| ------------- | ------- | ------- | ----------- |
+| access_key    |   true    |         | 华为访问密钥即AK|
+| secret_key    |   true    |         | 访问密钥即SK|
+| project_id    |   true    |         | 项目ID，可以在[我的凭证](https://console.huaweicloud.com/iam/?locale=zh-cn#/mine/apiCredential)获取|
+| region    |   true        |     cn-north-4    | region：华北-北京四	cn-north-4；华东-上海二	cn-east-2；华东-上海一	cn-east-3；华南-广州	cn-south-1|
+| namespace    |   true         |         | CCI命名空间|
+| deployment    |   true         |         | CCI负载名称|
+| image    |   true         |         | 镜像地址，如1)[swr镜像中心](https://console.huaweicloud.com/swr/?agencyId=66af5f8d4b84416785817649d667a396&region=cn-north-4&locale=zh-cn#/app/swr/huaweiOfficialList)：nginx:latest;  2) swr[我的镜像](https://console.huaweicloud.com/swr/?agencyId=66af5f8d4b84416785817649d667a396&region=cn-north-4&locale=zh-cn#/app/warehouse/list):swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1|
+| manifest    |   false    |         | 负载deployment描述yaml文件|
+
+## **action片段使用介绍**
+### 从SWR容器镜像中心部署CCI容器实例
+```yaml
+- name: deploy to cci
+      uses: huaweicloud/deploy-cci-action@v1.0.1
+      id: deploy-to-cci
+      with:
+        access_key: ${{ secrets.ACCESSKEY }}
+        secret_key: ${{ secrets.SECRETACCESSKEY }}
+        project_id: 'project_id'
+        region: ${{ env.REGION_ID }}
+        namespace: 'CCI命名空间'
+        deployment: 'CCI负载名称'
+        image: nginx:lates
+```
+
 
 ### 2.部署Kubernetes样例yaml文件
 以下示例为一个名为cci-deployment的Deployment负载，负载在命名空间是cci-namespace-70395701，使用swr.cn-north-4.myhuaweicloud.com/namespace/demo:v1.1t镜像创建两个Pod，每个Pod占用500m core CPU、1G内存。
