@@ -12,8 +12,8 @@ SWR需要[创建组织](https://support.huaweicloud.com/usermanual-swr/swr_01_00
 ### 3.CCI
 使用Deploy CCI Action前需要在CCI服务完成下面前置步骤操作。
 #### 1）[服务权限管理设置](https://support.huaweicloud.com/usermanual-cci/cci_01_0074.html)
-#### 2）[创建命名空间](https://support.huaweicloud.com/qs-cci/cci_qs_0004.html)
-#### 3）[创建负载](https://support.huaweicloud.com/qs-cci/cci_qs_0005.html)
+#### 2）[创建命名空间(非必须，不存在即创建)](https://support.huaweicloud.com/qs-cci/cci_qs_0004.html)
+#### 3）[创建负载(非必须，不存在即创建)](https://support.huaweicloud.com/qs-cci/cci_qs_0005.html)
 
 
 ## **End-to-End 样例 Workflows**
