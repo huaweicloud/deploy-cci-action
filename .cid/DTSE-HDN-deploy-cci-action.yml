@@ -1,5 +1,5 @@
 version: 1.0
-name: DTSE-HDN-deploy-cci-action
+name: deploy-cci-action
 language: nodejs
 
 #  构建工具
