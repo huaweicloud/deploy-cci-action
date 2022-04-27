@@ -20,7 +20,6 @@ export async function keystoneListAuthDomains(
     .build();
   const request = new iam.KeystoneListAuthDomainsRequest();
   const result = await client.keystoneListAuthDomains(request);
-  core.info(JSON.stringify(result));
   if (result.httpStatusCode >= 300) {
     core.setFailed('Keystone List Auth Domains Failed.');
   }

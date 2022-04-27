@@ -103,7 +103,7 @@ jobs:
         region: ${{ env.REGION_ID }}
         namespace: 'namespace-name'
         deployment: 'deployment-name'
-        image: nginx:lates
+        image: nginx:latest
 ```
 ### 从SWR我的镜像获取镜像部署CCI容器实例
 ```yaml
@@ -132,6 +132,7 @@ jobs:
         namespace: 'namespace-name'
         deployment: 'deployment-name'
         image: swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1
+        manifest: ./deployment.yml
 ```
 
 ### 1.部署Kubernetes样例yaml文件
@@ -143,7 +144,6 @@ apiVersion: apps/v1      # 注意这里与Pod的区别，Deployment是apps/v1而
 kind: Deployment         # 资源类型为Deployment
 metadata:
   name: cci-deployment            # 必填,Deployment的名称即是负载的名称
-  namespace: cci-namespace-70395701  # 必填,CCI服务命名空间
 spec:
   replicas: 2            # Pod的数量，Deployment会确保一直有2个Pod运行         
   selector:              # Label Selector
@@ -155,7 +155,7 @@ spec:
         app: cci-deployment  # Deployment的名称即是负载的名称
     spec:
       containers:
-      - image: swr.cn-north-4.myhuaweicloud.com/namespace/demo:v1.1  # 镜像地址
+      - image: swr.cn-north-4.myhuaweicloud.com/namespace/demo:v1.1  # 镜像地址,传入参数image会将次镜像地址替换
         name: container-0
         ports:
         - containerPort: 80
@@ -166,6 +166,7 @@ spec:
           requests:
             cpu: 500m
             memory: 1024Mi
-
+      imagePullSecrets:           # 拉取镜像使用的证书，必须为imagepull-secret
+      - name: imagepull-secret
 ```
 负载Deployment yaml文件更多介绍：[Deployment](https://support.huaweicloud.com/devg-cci/cci_05_0005.html)
