@@ -1,14 +1,14 @@
-import * as core from '@actions/core'
+import * as core from '@actions/core';
 
 export interface Inputs {
-  accessKey: string
-  secretKey: string
-  projectId: string
-  region: string
-  namespace: string
-  deployment: string
-  manifest: string
-  image: string
+  accessKey: string;
+  secretKey: string;
+  projectId: string;
+  region: string;
+  namespace: string;
+  deployment: string;
+  manifest: string;
+  image: string;
 }
 
 export function getInputs(): Inputs {
@@ -21,13 +21,12 @@ export function getInputs(): Inputs {
     deployment: core.getInput('deployment', {required: true}),
     manifest: core.getInput('manifest', {required: false}),
     image: core.getInput('image', {required: true})
-  }
+  };
 }
 
 export enum EndpointServiceName {
-  VPC = "vpc",
-  ELB = "elb",
-  IAM = "iam",
-  CCI = "cci",
+  VPC = 'vpc',
+  ELB = 'elb',
+  IAM = 'iam',
+  CCI = 'cci'
 }
-

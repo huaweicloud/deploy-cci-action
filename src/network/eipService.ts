@@ -1,30 +1,33 @@
-import * as core from '@actions/core'
-import * as utils from '../utils'
-import * as context from '../context'
+import * as core from '@actions/core';
+import * as utils from '../utils';
+import * as context from '../context';
 
-const eip = require("@huaweicloud/huaweicloud-sdk-eip");
+const eip = require('@huaweicloud/huaweicloud-sdk-eip');
 
 /**
  * 购买弹性公网IP
- * @param 
+ * @param
  * @returns
  */
 export async function createPublicip(inputs: context.Inputs): Promise<string> {
   const bandwidthName = 'bandwidth-' + utils.getRandomByDigit(8);
 
   const client = eip.EipClient.newBuilder()
-                              .withCredential(utils.getBasicCredentials(inputs))
-                              .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
-                              .build();
+    .withCredential(utils.getBasicCredentials(inputs))
+    .withEndpoint(
+      utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
+    )
+    .build();
   const request = new eip.CreatePublicipRequest();
   const body = new eip.CreatePublicipRequestBody();
   const publicipbody = new eip.CreatePublicipOption();
-  publicipbody.withType("5_bgp");
+  publicipbody.withType('5_bgp');
   const bandwidthbody = new eip.CreatePublicipBandwidthOption();
-  bandwidthbody.withChargeMode("traffic")
-   .withName(bandwidthName)
-   .withShareType("PER")
-   .withSize(5);
+  bandwidthbody
+    .withChargeMode('traffic')
+    .withName(bandwidthName)
+    .withShareType('PER')
+    .withSize(5);
   body.withPublicip(publicipbody);
   body.withBandwidth(bandwidthbody);
   request.withBody(body);
@@ -32,21 +35,26 @@ export async function createPublicip(inputs: context.Inputs): Promise<string> {
   core.info(result);
   if (result.httpStatusCode != 200) {
     core.setFailed('Create Public IP Failed.');
-   } 
+  }
   return Promise.resolve(result.publicip.id);
 }
 
-
 /**
  * 更新弹性公网IP。更新EIP，将EIP跟一个网卡绑定或者解绑定，转换IP地址版本类型。
- * @param 
+ * @param
  * @returns
  */
-export async function updatePublicip(publicipId: string, portId: string, inputs: context.Inputs): Promise<void> {
+export async function updatePublicip(
+  publicipId: string,
+  portId: string,
+  inputs: context.Inputs
+): Promise<void> {
   const client = eip.EipClient.newBuilder()
-                              .withCredential(utils.getBasicCredentials(inputs))
-                              .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
-                              .build();
+    .withCredential(utils.getBasicCredentials(inputs))
+    .withEndpoint(
+      utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
+    )
+    .build();
   const request = new eip.UpdatePublicipRequest();
   request.publicipId = publicipId;
   const body = new eip.UpdatePublicipsRequestBody();
@@ -56,7 +64,7 @@ export async function updatePublicip(publicipId: string, portId: string, inputs:
   request.withBody(body);
   const result = await client.updatePublicip(request);
   core.info(result);
-  if (result.httpStatusCode >= 300 ) {
+  if (result.httpStatusCode >= 300) {
     core.setFailed('Update Public IP Failed.');
-   }
+  }
 }
