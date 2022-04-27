@@ -64,7 +64,7 @@ jobs:
         uses: Azure/setup-kubectl@v2.1
 
       - name: deploy to cci
-        uses: huaweicloud/deploy-cci-action@v1.0.0
+        uses: huaweicloud/deploy-cci-action@v1.0.1
         id: deploy-to-cci
         with:
           access_key: ${{ secrets.ACCESSKEY }}
@@ -134,7 +134,7 @@ jobs:
         image: swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1
 ```
 
-### 2.部署Kubernetes样例yaml文件
+### 1.部署Kubernetes样例yaml文件
 以下示例为一个名为cci-deployment的Deployment负载，负载在命名空间是cci-namespace-70395701，使用swr.cn-north-4.myhuaweicloud.com/namespace/demo:v1.1t镜像创建两个Pod，每个Pod占用500m core CPU、1G内存。
 
 
@@ -168,3 +168,4 @@ spec:
             memory: 1024Mi
 
 ```
+负载Deployment yaml文件更多介绍：[Deployment](https://support.huaweicloud.com/devg-cci/cci_05_0005.html)
