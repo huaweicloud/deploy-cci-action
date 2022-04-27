@@ -179,8 +179,8 @@ describe('test whether the imageList parameter is valid', () => {
     {
       description: '镜像地址非swr地址',
       region: '',
-      image: '428173dff439.dkr.ecr.ap-southeast-1.amazonaws.com/demo',
-      result: false
+      image: 'nginx:latest',
+      result: true
     },
     {
       description: '镜像region和cci的region不一致',
