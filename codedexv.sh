@@ -5,7 +5,7 @@
 	### 以句点"."开头的文件夹和文件称为隐藏目录和隐藏文件，如.myDir和.config.ts
 	#### ------------------------------------------------------------------
 	## 版本V3 通过fortify扫描typescript模板
-	export PROJECT_NAME="DTSE-HDN.-VERSION.JS"
+	export PROJECT_NAME="DTSE-HDN-VERSION-JS"
 	## 跟codedex上的工程选择的版本对齐
 	export fortify_version="18.20"
 	#### ------------------------------------------------------------------
