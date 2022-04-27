@@ -20,6 +20,7 @@
     "@huaweicloud/huaweicloud-sdk-eip": "^3.0.37-rc",
     "@huaweicloud/huaweicloud-sdk-iam": "^3.0.37-rc",
     "@huaweicloud/huaweicloud-sdk-vpc": "^3.0.37-rc",
+    "@typescript-eslint/parser": "^5.21.0",
     "@vercel/ncc": "^0.33.3",
     "prettier": "^2.6.1",
     "ts-jest": "^27.1.4",

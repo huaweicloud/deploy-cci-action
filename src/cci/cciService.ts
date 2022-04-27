@@ -167,28 +167,6 @@ export async function updateDeployment(inputs: context.Inputs): Promise<void> {
         inputs.namespace
     );
   }
-
-  // 新建vip
-  const publicipId = await eip.createPublicip(inputs);
-  const subnetID = await getCCINetworkSubnetID(inputs);
-  const loadbalancer = await elb.createLoadbalancer(subnetID, inputs);
-  const vipPortId = await elb.getLoadbalancerVipPortIdByLoadbalancer(
-    loadbalancer
-  );
-  await eip.updatePublicip(publicipId, vipPortId, inputs);
-
-  // 新建Service
-  const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
-  const serviceFileName = 'service-' + utils.getRandomByDigit(8) + '.yml';
-  const serviceContent = new Service(inputs, elbId);
-  fs.writeFileSync(serviceFileName, yaml.stringify(serviceContent), 'utf8');
-  applyService(serviceFileName, inputs.namespace);
-
-  // 新建Ingress
-  const ingressFileName = 'ingress-' + utils.getRandomByDigit(8) + '.yml';
-  const ingressContent = new Ingress(inputs, elbId);
-  fs.writeFileSync(ingressFileName, yaml.stringify(ingressContent), 'utf8');
-  applyIngress(ingressFileName, inputs.namespace);
 }
 
 /*
