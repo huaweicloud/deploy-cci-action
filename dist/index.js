@@ -105595,7 +105595,7 @@ function keystoneListAuthDomains(inputs) {
                 core.setFailed('Keystone List Auth Domains Failed.');
             }
             const id = result.domains[0].id;
-            if (typeof (id) == 'string') {
+            if (typeof id == 'string') {
                 return Promise.resolve(id);
             }
         }
@@ -105915,7 +105915,7 @@ function createPublicip(inputs) {
         }
         if (Object.prototype.hasOwnProperty.call(result, 'publicip')) {
             const id = result.publicip.id;
-            if (typeof (id) == 'string') {
+            if (typeof id == 'string') {
                 return Promise.resolve(id);
             }
         }
@@ -106321,7 +106321,7 @@ function listDefaultCCISecurityGroups(inputs) {
                 return Promise.resolve(securityGroupId);
             }
             const id = securityGroups[0].id;
-            if (typeof (id) == 'string') {
+            if (typeof id == 'string') {
                 return Promise.resolve(id);
             }
         }
@@ -106353,7 +106353,7 @@ function createDefaultCCISecurityGroups(inputs) {
         }
         if (Object.prototype.hasOwnProperty.call(obj, 'security_group')) {
             const id = obj.security_group.id;
-            if (typeof (id) == 'string') {
+            if (typeof id == 'string') {
                 return Promise.resolve(id);
             }
         }
@@ -106368,7 +106368,7 @@ exports.createDefaultCCISecurityGroups = createDefaultCCISecurityGroups;
  */
 function createDefaultCCISecurityGroupRule(securityGroupId, inputs) {
     return __awaiter(this, void 0, void 0, function* () {
-        const client = vpc.VpcClient.newBuilder()
+        const client = vpcv3.VpcClient.newBuilder()
             .withCredential(utils.getBasicCredentials(inputs))
             .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
             .build();
@@ -106379,9 +106379,9 @@ function createDefaultCCISecurityGroupRule(securityGroupId, inputs) {
         ];
         securityGroupRules.forEach(function (securityGroupRule) {
             return __awaiter(this, void 0, void 0, function* () {
-                const request = new vpc.CreateSecurityGroupRuleRequest();
-                const body = new vpc.CreateSecurityGroupRuleRequestBody();
-                const securityGroupRulebody = new vpc.CreateSecurityGroupRuleOption();
+                const request = new vpcv3.CreateSecurityGroupRuleRequest();
+                const body = new vpcv3.CreateSecurityGroupRuleRequestBody();
+                const securityGroupRulebody = new vpcv3.CreateSecurityGroupRuleOption();
                 securityGroupRulebody
                     .withSecurityGroupId(securityGroupRule.securityGroupId)
                     .withDirection(securityGroupRule.direction)
@@ -106428,7 +106428,7 @@ function createVpc(inputs) {
         }
         if (Object.prototype.hasOwnProperty.call(obj, 'vpc')) {
             const id = obj.vpc.id;
-            if (typeof (id) == 'string') {
+            if (typeof id == 'string') {
                 return Promise.resolve(id);
             }
         }
@@ -106467,7 +106467,9 @@ function createSubnet(vpcId) {
             core.setFailed('Create Subnet Failed.');
         }
         const subnetInfo = JSON.parse(JSON.stringify(result.subnet));
-        if (Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') && Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') && Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')) {
+        if (Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') &&
+            Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') &&
+            Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')) {
             return Promise.resolve(subnetInfo);
         }
         throw new Error('Create Subnet Failed.');

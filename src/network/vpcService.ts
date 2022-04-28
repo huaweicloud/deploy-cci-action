@@ -93,7 +93,7 @@ export async function createDefaultCCISecurityGroupRule(
   securityGroupId: string,
   inputs: context.Inputs
 ): Promise<void> {
-  const client = vpc.VpcClient.newBuilder()
+  const client = vpcv3.VpcClient.newBuilder()
     .withCredential(utils.getBasicCredentials(inputs))
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
@@ -106,9 +106,9 @@ export async function createDefaultCCISecurityGroupRule(
   ];
 
   securityGroupRules.forEach(async function (securityGroupRule) {
-    const request = new vpc.CreateSecurityGroupRuleRequest();
-    const body = new vpc.CreateSecurityGroupRuleRequestBody();
-    const securityGroupRulebody = new vpc.CreateSecurityGroupRuleOption();
+    const request = new vpcv3.CreateSecurityGroupRuleRequest();
+    const body = new vpcv3.CreateSecurityGroupRuleRequestBody();
+    const securityGroupRulebody = new vpcv3.CreateSecurityGroupRuleOption();
     securityGroupRulebody
       .withSecurityGroupId(securityGroupRule.securityGroupId)
       .withDirection(securityGroupRule.direction)
