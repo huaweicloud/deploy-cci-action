@@ -36,7 +36,7 @@ export async function createPublicip(inputs: context.Inputs): Promise<string> {
   if (result.httpStatusCode != 200) {
     core.setFailed('Create Public IP Failed.');
   }
-  if (result.hasOwnProperty('publicip')) {
+  if (Object.prototype.hasOwnProperty.call(result, 'publicip')) {
     const id = result.publicip.id;
     if (typeof(id) == 'string') {
       return Promise.resolve(id);
