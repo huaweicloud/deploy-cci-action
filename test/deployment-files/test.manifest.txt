@@ -14,21 +14,10 @@ spec:
         app: cci-deployment
     spec:
       containers:
-      - image: 'swr.repace.myhuaweicloud.com/repace/repace:v1.1'
+      - image: swr.cn-north-4.myhuaweicloud.com/demo-test/demo:v1.1
         name: container-0
         ports:
         - containerPort: 80
-        resources:
-          limits:
-            cpu: 500m
-            memory: 1024Mi
-          requests:
-            cpu: 500m
-            memory: 1024Mi
-      - image: 'swr.repace.myhuaweicloud.com/repace/repace:v1.2'
-        name: container-1
-        ports:
-        - containerPort: 81
         resources:
           limits:
             cpu: 500m

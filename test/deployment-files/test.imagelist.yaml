@@ -25,14 +25,3 @@ spec:
           requests:
             cpu: 500m
             memory: 1024Mi
-      - image: swr.cn-north-4.myhuaweicloud.com/demo-test/demo:v1.2
-        name: container-1
-        ports:
-        - containerPort: 81
-        resources:
-          limits:
-            cpu: 500m
-            memory: 1024Mi
-          requests:
-            cpu: 500m
-            memory: 1024Mi
