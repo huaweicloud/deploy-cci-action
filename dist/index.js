@@ -415,6 +415,11 @@ function getIDToken(aud) {
     });
 }
 exports.getIDToken = getIDToken;
+/**
+ * Markdown summary exports
+ */
+var markdown_summary_1 = __nccwpck_require__(58042);
+Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return markdown_summary_1.markdownSummary; } }));
 //# sourceMappingURL=core.js.map
 
 /***/ }),
@@ -465,6 +470,292 @@ function issueCommand(command, message) {
 }
 exports.issueCommand = issueCommand;
 //# sourceMappingURL=file-command.js.map
+
+/***/ }),
+
+/***/ 58042:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
+const os_1 = __nccwpck_require__(22037);
+const fs_1 = __nccwpck_require__(57147);
+const { access, appendFile, writeFile } = fs_1.promises;
+exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
+exports.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-markdown-summary';
+class MarkdownSummary {
+    constructor() {
+        this._buffer = '';
+    }
+    /**
+     * Finds the summary file path from the environment, rejects if env var is not found or file does not exist
+     * Also checks r/w permissions.
+     *
+     * @returns step summary file path
+     */
+    filePath() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this._filePath) {
+                return this._filePath;
+            }
+            const pathFromEnv = process.env[exports.SUMMARY_ENV_VAR];
+            if (!pathFromEnv) {
+                throw new Error(`Unable to find environment variable for $${exports.SUMMARY_ENV_VAR}. Check if your runtime environment supports markdown summaries.`);
+            }
+            try {
+                yield access(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
+            }
+            catch (_a) {
+                throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
+            }
+            this._filePath = pathFromEnv;
+            return this._filePath;
+        });
+    }
+    /**
+     * Wraps content in an HTML tag, adding any HTML attributes
+     *
+     * @param {string} tag HTML tag to wrap
+     * @param {string | null} content content within the tag
+     * @param {[attribute: string]: string} attrs key-value list of HTML attributes to add
+     *
+     * @returns {string} content wrapped in HTML element
+     */
+    wrap(tag, content, attrs = {}) {
+        const htmlAttrs = Object.entries(attrs)
+            .map(([key, value]) => ` ${key}="${value}"`)
+            .join('');
+        if (!content) {
+            return `<${tag}${htmlAttrs}>`;
+        }
+        return `<${tag}${htmlAttrs}>${content}</${tag}>`;
+    }
+    /**
+     * Writes text in the buffer to the summary buffer file and empties buffer. Will append by default.
+     *
+     * @param {SummaryWriteOptions} [options] (optional) options for write operation
+     *
+     * @returns {Promise<MarkdownSummary>} markdown summary instance
+     */
+    write(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
+            const filePath = yield this.filePath();
+            const writeFunc = overwrite ? writeFile : appendFile;
+            yield writeFunc(filePath, this._buffer, { encoding: 'utf8' });
+            return this.emptyBuffer();
+        });
+    }
+    /**
+     * Clears the summary buffer and wipes the summary file
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    clear() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.emptyBuffer().write({ overwrite: true });
+        });
+    }
+    /**
+     * Returns the current summary buffer as a string
+     *
+     * @returns {string} string of summary buffer
+     */
+    stringify() {
+        return this._buffer;
+    }
+    /**
+     * If the summary buffer is empty
+     *
+     * @returns {boolen} true if the buffer is empty
+     */
+    isEmptyBuffer() {
+        return this._buffer.length === 0;
+    }
+    /**
+     * Resets the summary buffer without writing to summary file
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    emptyBuffer() {
+        this._buffer = '';
+        return this;
+    }
+    /**
+     * Adds raw text to the summary buffer
+     *
+     * @param {string} text content to add
+     * @param {boolean} [addEOL=false] (optional) append an EOL to the raw text (default: false)
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addRaw(text, addEOL = false) {
+        this._buffer += text;
+        return addEOL ? this.addEOL() : this;
+    }
+    /**
+     * Adds the operating system-specific end-of-line marker to the buffer
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addEOL() {
+        return this.addRaw(os_1.EOL);
+    }
+    /**
+     * Adds an HTML codeblock to the summary buffer
+     *
+     * @param {string} code content to render within fenced code block
+     * @param {string} lang (optional) language to syntax highlight code
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addCodeBlock(code, lang) {
+        const attrs = Object.assign({}, (lang && { lang }));
+        const element = this.wrap('pre', this.wrap('code', code), attrs);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML list to the summary buffer
+     *
+     * @param {string[]} items list of items to render
+     * @param {boolean} [ordered=false] (optional) if the rendered list should be ordered or not (default: false)
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addList(items, ordered = false) {
+        const tag = ordered ? 'ol' : 'ul';
+        const listItems = items.map(item => this.wrap('li', item)).join('');
+        const element = this.wrap(tag, listItems);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML table to the summary buffer
+     *
+     * @param {SummaryTableCell[]} rows table rows
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addTable(rows) {
+        const tableBody = rows
+            .map(row => {
+            const cells = row
+                .map(cell => {
+                if (typeof cell === 'string') {
+                    return this.wrap('td', cell);
+                }
+                const { header, data, colspan, rowspan } = cell;
+                const tag = header ? 'th' : 'td';
+                const attrs = Object.assign(Object.assign({}, (colspan && { colspan })), (rowspan && { rowspan }));
+                return this.wrap(tag, data, attrs);
+            })
+                .join('');
+            return this.wrap('tr', cells);
+        })
+            .join('');
+        const element = this.wrap('table', tableBody);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds a collapsable HTML details element to the summary buffer
+     *
+     * @param {string} label text for the closed state
+     * @param {string} content collapsable content
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addDetails(label, content) {
+        const element = this.wrap('details', this.wrap('summary', label) + content);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML image tag to the summary buffer
+     *
+     * @param {string} src path to the image you to embed
+     * @param {string} alt text description of the image
+     * @param {SummaryImageOptions} options (optional) addition image attributes
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addImage(src, alt, options) {
+        const { width, height } = options || {};
+        const attrs = Object.assign(Object.assign({}, (width && { width })), (height && { height }));
+        const element = this.wrap('img', null, Object.assign({ src, alt }, attrs));
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML section heading element
+     *
+     * @param {string} text heading text
+     * @param {number | string} [level=1] (optional) the heading level, default: 1
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addHeading(text, level) {
+        const tag = `h${level}`;
+        const allowedTag = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)
+            ? tag
+            : 'h1';
+        const element = this.wrap(allowedTag, text);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML thematic break (<hr>) to the summary buffer
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addSeparator() {
+        const element = this.wrap('hr', null);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML line break (<br>) to the summary buffer
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addBreak() {
+        const element = this.wrap('br', null);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML blockquote to the summary buffer
+     *
+     * @param {string} text quote text
+     * @param {string} cite (optional) citation url
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addQuote(text, cite) {
+        const attrs = Object.assign({}, (cite && { cite }));
+        const element = this.wrap('blockquote', text, attrs);
+        return this.addRaw(element).addEOL();
+    }
+    /**
+     * Adds an HTML anchor tag to the summary buffer
+     *
+     * @param {string} text link text/content
+     * @param {string} href hyperlink
+     *
+     * @returns {MarkdownSummary} markdown summary instance
+     */
+    addLink(text, href) {
+        const element = this.wrap('a', text, { href });
+        return this.addRaw(element).addEOL();
+    }
+}
+// singleton export
+exports.markdownSummary = new MarkdownSummary();
+//# sourceMappingURL=markdown-summary.js.map
 
 /***/ }),
 
@@ -74325,7 +74616,7 @@ module.exports = copy
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 module.exports = {
   copy: u(__nccwpck_require__(38834)),
   copySync: __nccwpck_require__(89618)
@@ -74340,7 +74631,7 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromPromise */ .p)
+const u = (__nccwpck_require__(9046).fromPromise)
 const fs = __nccwpck_require__(61176)
 const path = __nccwpck_require__(71017)
 const mkdir = __nccwpck_require__(98605)
@@ -74387,7 +74678,7 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 const path = __nccwpck_require__(71017)
 const fs = __nccwpck_require__(77758)
 const mkdir = __nccwpck_require__(98605)
@@ -74495,7 +74786,7 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 const path = __nccwpck_require__(71017)
 const fs = __nccwpck_require__(77758)
 const mkdir = __nccwpck_require__(98605)
@@ -74713,7 +75004,7 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 const path = __nccwpck_require__(71017)
 const fs = __nccwpck_require__(61176)
 const _mkdirs = __nccwpck_require__(98605)
@@ -74804,7 +75095,7 @@ module.exports = {
 
 // This is adapted from https://github.com/normalize/mz
 // Copyright (c) 2014-2016 Jonathan Ong me@jongleberry.com and Contributors
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 const fs = __nccwpck_require__(77758)
 
 const api = [
@@ -74963,7 +75254,7 @@ module.exports = {
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromPromise */ .p)
+const u = (__nccwpck_require__(9046).fromPromise)
 const jsonFile = __nccwpck_require__(18970)
 
 jsonFile.outputJson = u(__nccwpck_require__(60531))
@@ -75045,7 +75336,7 @@ module.exports = outputJson
 
 "use strict";
 
-const u = (__nccwpck_require__(50746)/* .fromPromise */ .p)
+const u = (__nccwpck_require__(9046).fromPromise)
 const { makeDir: _makeDir, makeDirSync } = __nccwpck_require__(52751)
 const makeDir = u(_makeDir)
 
@@ -75132,7 +75423,7 @@ module.exports.checkPath = function checkPath (pth) {
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 module.exports = {
   move: u(__nccwpck_require__(72231)),
   moveSync: __nccwpck_require__(42047)
@@ -75292,7 +75583,7 @@ module.exports = move
 "use strict";
 
 
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 const fs = __nccwpck_require__(77758)
 const path = __nccwpck_require__(71017)
 const mkdir = __nccwpck_require__(98605)
@@ -75339,7 +75630,7 @@ module.exports = {
 
 "use strict";
 
-const u = (__nccwpck_require__(50746)/* .fromPromise */ .p)
+const u = (__nccwpck_require__(9046).fromPromise)
 const fs = __nccwpck_require__(61176)
 
 function pathExists (path) {
@@ -75361,7 +75652,7 @@ module.exports = {
 
 
 const fs = __nccwpck_require__(77758)
-const u = (__nccwpck_require__(50746)/* .fromCallback */ .E)
+const u = (__nccwpck_require__(9046).fromCallback)
 const rimraf = __nccwpck_require__(38761)
 
 function remove (path, callback) {
@@ -75890,38 +76181,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ 50746:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-exports.E = function (fn) {
-  return Object.defineProperty(function (...args) {
-    if (typeof args[args.length - 1] === 'function') fn.apply(this, args)
-    else {
-      return new Promise((resolve, reject) => {
-        fn.call(
-          this,
-          ...args,
-          (err, res) => (err != null) ? reject(err) : resolve(res)
-        )
-      })
-    }
-  }, 'name', { value: fn.name })
-}
-
-exports.p = function (fn) {
-  return Object.defineProperty(function (...args) {
-    const cb = args[args.length - 1]
-    if (typeof cb !== 'function') return fn.apply(this, args)
-    else fn.apply(this, args.slice(0, -1)).then(r => cb(null, r), cb)
-  }, 'name', { value: fn.name })
-}
-
-
-/***/ }),
-
 /***/ 67356:
 /***/ ((module) => {
 
@@ -76149,16 +76408,35 @@ function patch (fs) {
 
   var fs$readdir = fs.readdir
   fs.readdir = readdir
+  var noReaddirOptionVersions = /^v[0-5]\./
   function readdir (path, options, cb) {
     if (typeof options === 'function')
       cb = options, options = null
 
+    var go$readdir = noReaddirOptionVersions.test(process.version)
+      ? function go$readdir (path, options, cb, startTime) {
+        return fs$readdir(path, fs$readdirCallback(
+          path, options, cb, startTime
+        ))
+      }
+      : function go$readdir (path, options, cb, startTime) {
+        return fs$readdir(path, options, fs$readdirCallback(
+          path, options, cb, startTime
+        ))
+      }
+
     return go$readdir(path, options, cb)
 
-    function go$readdir (path, options, cb, startTime) {
-      return fs$readdir(path, options, function (err, files) {
+    function fs$readdirCallback (path, options, cb, startTime) {
+      return function (err, files) {
         if (err && (err.code === 'EMFILE' || err.code === 'ENFILE'))
-          enqueue([go$readdir, [path, options, cb], err, startTime || Date.now(), Date.now()])
+          enqueue([
+            go$readdir,
+            [path, options, cb],
+            err,
+            startTime || Date.now(),
+            Date.now()
+          ])
         else {
           if (files && files.sort)
             files.sort()
@@ -76166,7 +76444,7 @@ function patch (fs) {
           if (typeof cb === 'function')
             cb.call(this, err, files)
         }
-      })
+      }
     }
   }
 
@@ -76590,13 +76868,13 @@ function patch (fs) {
   fs.lstatSync = statFixSync(fs.lstatSync)
 
   // if lchmod/lchown do not exist, then make them no-ops
-  if (!fs.lchmod) {
+  if (fs.chmod && !fs.lchmod) {
     fs.lchmod = function (path, mode, cb) {
       if (cb) process.nextTick(cb)
     }
     fs.lchmodSync = function () {}
   }
-  if (!fs.lchown) {
+  if (fs.chown && !fs.lchown) {
     fs.lchown = function (path, uid, gid, cb) {
       if (cb) process.nextTick(cb)
     }
@@ -76613,32 +76891,38 @@ function patch (fs) {
   // CPU to a busy looping process, which can cause the program causing the lock
   // contention to be starved of CPU by node, so the contention doesn't resolve.
   if (platform === "win32") {
-    fs.rename = (function (fs$rename) { return function (from, to, cb) {
-      var start = Date.now()
-      var backoff = 0;
-      fs$rename(from, to, function CB (er) {
-        if (er
-            && (er.code === "EACCES" || er.code === "EPERM")
-            && Date.now() - start < 60000) {
-          setTimeout(function() {
-            fs.stat(to, function (stater, st) {
-              if (stater && stater.code === "ENOENT")
-                fs$rename(from, to, CB);
-              else
-                cb(er)
-            })
-          }, backoff)
-          if (backoff < 100)
-            backoff += 10;
-          return;
-        }
-        if (cb) cb(er)
-      })
-    }})(fs.rename)
+    fs.rename = typeof fs.rename !== 'function' ? fs.rename
+    : (function (fs$rename) {
+      function rename (from, to, cb) {
+        var start = Date.now()
+        var backoff = 0;
+        fs$rename(from, to, function CB (er) {
+          if (er
+              && (er.code === "EACCES" || er.code === "EPERM")
+              && Date.now() - start < 60000) {
+            setTimeout(function() {
+              fs.stat(to, function (stater, st) {
+                if (stater && stater.code === "ENOENT")
+                  fs$rename(from, to, CB);
+                else
+                  cb(er)
+              })
+            }, backoff)
+            if (backoff < 100)
+              backoff += 10;
+            return;
+          }
+          if (cb) cb(er)
+        })
+      }
+      if (Object.setPrototypeOf) Object.setPrototypeOf(rename, fs$rename)
+      return rename
+    })(fs.rename)
   }
 
   // if read() returns EAGAIN, then just try it again.
-  fs.read = (function (fs$read) {
+  fs.read = typeof fs.read !== 'function' ? fs.read
+  : (function (fs$read) {
     function read (fd, buffer, offset, length, position, callback_) {
       var callback
       if (callback_ && typeof callback_ === 'function') {
@@ -76659,7 +76943,8 @@ function patch (fs) {
     return read
   })(fs.read)
 
-  fs.readSync = (function (fs$readSync) { return function (fd, buffer, offset, length, position) {
+  fs.readSync = typeof fs.readSync !== 'function' ? fs.readSync
+  : (function (fs$readSync) { return function (fd, buffer, offset, length, position) {
     var eagCounter = 0
     while (true) {
       try {
@@ -76718,7 +77003,7 @@ function patch (fs) {
   }
 
   function patchLutimes (fs) {
-    if (constants.hasOwnProperty("O_SYMLINK")) {
+    if (constants.hasOwnProperty("O_SYMLINK") && fs.futimes) {
       fs.lutimes = function (path, at, mt, cb) {
         fs.open(path, constants.O_SYMLINK, function (er, fd) {
           if (er) {
@@ -76752,7 +77037,7 @@ function patch (fs) {
         return ret
       }
 
-    } else {
+    } else if (fs.futimes) {
       fs.lutimes = function (_a, _b, _c, cb) { if (cb) process.nextTick(cb) }
       fs.lutimesSync = function () {}
     }
@@ -76874,12 +77159,12 @@ function patch (fs) {
 
 "use strict";
 
-
-module.exports = (flag, argv = process.argv) => {
+module.exports = (flag, argv) => {
+	argv = argv || process.argv;
 	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
-	const position = argv.indexOf(prefix + flag);
-	const terminatorPosition = argv.indexOf('--');
-	return position !== -1 && (terminatorPosition === -1 || position < terminatorPosition);
+	const pos = argv.indexOf(prefix + flag);
+	const terminatorPos = argv.indexOf('--');
+	return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
 };
 
 
@@ -77009,13 +77294,10 @@ class HttpsProxyAgent extends agent_base_1.Agent {
             if (statusCode === 200) {
                 req.once('socket', resume);
                 if (opts.secureEndpoint) {
-                    const servername = opts.servername || opts.host;
-                    if (!servername) {
-                        throw new Error('Could not determine "servername"');
-                    }
                     // The proxy is connecting to a TLS server, so upgrade
                     // this socket connection to a TLS connection.
                     debug('Upgrading socket connection to TLS');
+                    const servername = opts.servername || opts.host;
                     return tls_1.default.connect(Object.assign(Object.assign({}, omit(opts, 'host', 'hostname', 'path', 'port')), { socket,
                         servername }));
                 }
@@ -77032,7 +77314,7 @@ class HttpsProxyAgent extends agent_base_1.Agent {
             //
             // See: https://hackerone.com/reports/541502
             socket.destroy();
-            const fakeSocket = new net_1.default.Socket();
+            const fakeSocket = new net_1.default.Socket({ writable: false });
             fakeSocket.readable = true;
             // Need to wait for the "socket" event to re-play the "data" events.
             req.once('socket', (s) => {
@@ -77175,7 +77457,7 @@ try {
 } catch (_) {
   _fs = __nccwpck_require__(57147)
 }
-const universalify = __nccwpck_require__(87133)
+const universalify = __nccwpck_require__(9046)
 const { stringify, stripBom } = __nccwpck_require__(35902)
 
 async function _readFile (file, options = {}) {
@@ -77257,38 +77539,6 @@ const jsonfile = {
 }
 
 module.exports = jsonfile
-
-
-/***/ }),
-
-/***/ 87133:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-exports.fromCallback = function (fn) {
-  return Object.defineProperty(function (...args) {
-    if (typeof args[args.length - 1] === 'function') fn.apply(this, args)
-    else {
-      return new Promise((resolve, reject) => {
-        fn.call(
-          this,
-          ...args,
-          (err, res) => (err != null) ? reject(err) : resolve(res)
-        )
-      })
-    }
-  }, 'name', { value: fn.name })
-}
-
-exports.fromPromise = function (fn) {
-  return Object.defineProperty(function (...args) {
-    const cb = args[args.length - 1]
-    if (typeof cb !== 'function') return fn.apply(this, args)
-    else fn.apply(this, args.slice(0, -1)).then(r => cb(null, r), cb)
-  }, 'name', { value: fn.name })
-}
 
 
 /***/ }),
@@ -103548,13 +103798,7 @@ module.exports = RollingFileStream;
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const debug = __nccwpck_require__(38237)("streamroller:RollingFileWriteStream");
-
-const realFs = __nccwpck_require__(57147);
-const current = realFs.realpath.native;
-if (!realFs.realpath.native) realFs.realpath.native = realFs.realpath;
 const fs = __nccwpck_require__(5630);
-realFs.realpath.native = current;
-
 const path = __nccwpck_require__(71017);
 const newNow = __nccwpck_require__(79652);
 const format = __nccwpck_require__(52087);
@@ -103562,6 +103806,13 @@ const { Writable } = __nccwpck_require__(12781);
 const fileNameFormatter = __nccwpck_require__(10360);
 const fileNameParser = __nccwpck_require__(22592);
 const moveAndMaybeCompressFile = __nccwpck_require__(66);
+
+const deleteFiles = fileNames => {
+  debug(`deleteFiles: files to delete: ${fileNames}`);
+  return Promise.all(fileNames.map(f => fs.unlink(f).catch((e) => {
+    debug(`deleteFiles: error when unlinking ${f}, ignoring. Error was ${e}`);
+  })));
+};
 
 /**
  * RollingFileWriteStream is mainly used when writing to a file rolling by date or size.
@@ -103781,7 +104032,8 @@ class RollingFileWriteStream extends Writable {
 
   // Sorted from the oldest to the latest
   async _getExistingFiles() {
-    const files = await fs.readdir(this.fileObject.dir).catch( /* istanbul ignore next: will not happen on windows */ () => []);
+    const files = await fs.readdir(this.fileObject.dir)
+      .catch( /* istanbul ignore next: will not happen on windows */ () => []);
 
     debug(`_getExistingFiles: files=${files}`);
     const existingFileDetails = files
@@ -103861,13 +104113,6 @@ class RollingFileWriteStream extends Writable {
     return this.options.numToKeep > 0 && numFiles > this.options.numToKeep;
   }
 }
-
-const deleteFiles = fileNames => {
-  debug(`deleteFiles: files to delete: ${fileNames}`);
-  return Promise.all(fileNames.map(f => fs.unlink(f).catch((e) => {
-    debug(`deleteFiles: error when unlinking ${f}, ignoring. Error was ${e}`);
-  })));
-};
 
 module.exports = RollingFileWriteStream;
 
@@ -104039,13 +104284,7 @@ module.exports = {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const debug = __nccwpck_require__(38237)('streamroller:moveAndMaybeCompressFile');
-
-const realFs = __nccwpck_require__(57147);
-const current = realFs.realpath.native;
-if (!realFs.realpath.native) realFs.realpath.native = realFs.realpath;
-let fs = __nccwpck_require__(5630);
-realFs.realpath.native = current;
-
+const fs = __nccwpck_require__(5630);
 const zlib = __nccwpck_require__(59796);
 
 const _parseOption = function(rawOptions){
@@ -104054,11 +104293,9 @@ const _parseOption = function(rawOptions){
     compress: false,
   };
   const options = Object.assign({}, defaultOptions, rawOptions);
-  debug(
-    `_parseOption: moveAndMaybeCompressFile called with option=${JSON.stringify(options)}`
-  );
+  debug(`_parseOption: moveAndMaybeCompressFile called with option=${JSON.stringify(options)}`);
   return options;
-}
+};
 
 const moveAndMaybeCompressFile = async (
   sourceFilePath,
@@ -104066,52 +104303,82 @@ const moveAndMaybeCompressFile = async (
   options
 ) => {
   options = _parseOption(options);
+
   if (sourceFilePath === targetFilePath) {
-    debug(
-      `moveAndMaybeCompressFile: source and target are the same, not doing anything`
-    );
+    debug(`moveAndMaybeCompressFile: source and target are the same, not doing anything`);
     return;
   }
-    if (await fs.pathExists(sourceFilePath)) {
 
-      debug(
-        `moveAndMaybeCompressFile: moving file from ${sourceFilePath} to ${targetFilePath} ${
-          options.compress ? "with" : "without"
-        } compress`
-      );
-      if (options.compress) {
-        await new Promise((resolve, reject) => {
-          fs.createReadStream(sourceFilePath)
-            .pipe(zlib.createGzip())
-            .pipe(fs.createWriteStream(targetFilePath, {mode: options.mode}))
-            .on("finish", () => {
-              debug(
-                `moveAndMaybeCompressFile: finished compressing ${targetFilePath}, deleting ${sourceFilePath}`
-              );
-              fs.unlink(sourceFilePath)
-                .then(resolve)
-                .catch(() => {
-                  debug(`Deleting ${sourceFilePath} failed, truncating instead`);
-                  fs.truncate(sourceFilePath).then(resolve).catch(reject)
+  if (await fs.pathExists(sourceFilePath)) {
+    debug(
+      `moveAndMaybeCompressFile: moving file from ${sourceFilePath} to ${targetFilePath} ${
+        options.compress ? "with" : "without"
+      } compress`
+    );
+    if (options.compress) {
+      await new Promise((resolve, reject) => {
+        let isCreated = false;
+        // to avoid concurrency, the forked process which can create the file will proceed (using flags wx)
+        const writeStream = fs.createWriteStream(targetFilePath, {mode: options.mode, flags: "wx"})
+          // wait until writable stream is valid before proceeding to read
+          .on("open", () => {
+            isCreated = true;
+            const readStream = fs.createReadStream(sourceFilePath)
+              // wait until readable stream is valid before piping
+              .on("open", () => {
+                readStream.pipe(zlib.createGzip()).pipe(writeStream);
+              })
+              .on("error", (e) => {
+                debug(`moveAndMaybeCompressFile: error reading ${sourceFilePath}`, e);
+                // manually close writable: https://nodejs.org/api/stream.html#readablepipedestination-options
+                writeStream.destroy(e);
+              });
+          })
+          .on("finish", () => {
+            debug(`moveAndMaybeCompressFile: finished compressing ${targetFilePath}, deleting ${sourceFilePath}`);
+            // delete sourceFilePath
+            fs.unlink(sourceFilePath)
+              .then(resolve)
+              .catch((e) => {
+                debug(`moveAndMaybeCompressFile: error deleting ${sourceFilePath}, truncating instead`, e);
+                // fallback to truncate
+                fs.truncate(sourceFilePath)
+                  .then(resolve)
+                  .catch((e) => {
+                    debug(`moveAndMaybeCompressFile: error truncating ${sourceFilePath}`, e);
+                    reject(e);
+                  });
+              });
+          })
+          .on("error", (e) => {
+            if (!isCreated) {
+              debug(`moveAndMaybeCompressFile: error creating ${targetFilePath}`, e);
+              // do not do anything if handled by another forked process
+              reject(e);
+            } else {
+              debug(`moveAndMaybeCompressFile: error writing ${targetFilePath}, deleting`, e);
+              // delete targetFilePath (taking as nothing happened)
+              fs.unlink(targetFilePath)
+                .then(() => { reject(e); })
+                .catch((e) => {
+                  debug(`moveAndMaybeCompressFile: error deleting ${targetFilePath}`, e);
+                  reject(e);
                 });
-            });
-        });
-      } else {
-        debug(
-          `moveAndMaybeCompressFile: deleting file=${targetFilePath}, renaming ${sourceFilePath} to ${targetFilePath}`
-        );
-        try {
-          await fs.move(sourceFilePath, targetFilePath, { overwrite: true });
-        } catch (e) {
-          debug(
-            `moveAndMaybeCompressFile: error moving ${sourceFilePath} to ${targetFilePath}`, e
-          );
-          debug(`Trying copy+truncate instead`);
-          await fs.copy(sourceFilePath, targetFilePath, { overwrite: true });
-          await fs.truncate(sourceFilePath);
-        }
+            }
+          });
+      }).catch(() => {});
+    } else {
+      debug(`moveAndMaybeCompressFile: renaming ${sourceFilePath} to ${targetFilePath}`);
+      try {
+        await fs.move(sourceFilePath, targetFilePath, { overwrite: true });
+      } catch (e) {
+        debug(`moveAndMaybeCompressFile: error renaming ${sourceFilePath} to ${targetFilePath}`, e);
+        debug(`moveAndMaybeCompressFile: trying copy+truncate instead`);
+        await fs.copy(sourceFilePath, targetFilePath, { overwrite: true });
+        await fs.truncate(sourceFilePath);
       }
     }
+  }
 };
 
 module.exports = moveAndMaybeCompressFile;
@@ -104134,32 +104401,23 @@ module.exports = () => new Date();
 "use strict";
 
 const os = __nccwpck_require__(22037);
-const tty = __nccwpck_require__(76224);
 const hasFlag = __nccwpck_require__(31621);
 
-const {env} = process;
+const env = process.env;
 
 let forceColor;
 if (hasFlag('no-color') ||
 	hasFlag('no-colors') ||
-	hasFlag('color=false') ||
-	hasFlag('color=never')) {
-	forceColor = 0;
+	hasFlag('color=false')) {
+	forceColor = false;
 } else if (hasFlag('color') ||
 	hasFlag('colors') ||
 	hasFlag('color=true') ||
 	hasFlag('color=always')) {
-	forceColor = 1;
+	forceColor = true;
 }
-
 if ('FORCE_COLOR' in env) {
-	if (env.FORCE_COLOR === 'true') {
-		forceColor = 1;
-	} else if (env.FORCE_COLOR === 'false') {
-		forceColor = 0;
-	} else {
-		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
-	}
+	forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
 }
 
 function translateLevel(level) {
@@ -104175,8 +104433,8 @@ function translateLevel(level) {
 	};
 }
 
-function supportsColor(haveStream, streamIsTTY) {
-	if (forceColor === 0) {
+function supportsColor(stream) {
+	if (forceColor === false) {
 		return 0;
 	}
 
@@ -104190,21 +104448,22 @@ function supportsColor(haveStream, streamIsTTY) {
 		return 2;
 	}
 
-	if (haveStream && !streamIsTTY && forceColor === undefined) {
+	if (stream && !stream.isTTY && forceColor !== true) {
 		return 0;
 	}
 
-	const min = forceColor || 0;
-
-	if (env.TERM === 'dumb') {
-		return min;
-	}
+	const min = forceColor ? 1 : 0;
 
 	if (process.platform === 'win32') {
-		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
-		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
+		// Node.js 7.5.0 is the first version of Node.js to include a patch to
+		// libuv that enables 256 color output on Windows. Anything earlier and it
+		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
+		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
+		// release that supports 256 colors. Windows 10 build 14931 is the first release
+		// that supports 16m/TrueColor.
 		const osRelease = os.release().split('.');
 		if (
+			Number(process.versions.node.split('.')[0]) >= 8 &&
 			Number(osRelease[0]) >= 10 &&
 			Number(osRelease[2]) >= 10586
 		) {
@@ -104215,7 +104474,7 @@ function supportsColor(haveStream, streamIsTTY) {
 	}
 
 	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
 			return 1;
 		}
 
@@ -104254,18 +104513,22 @@ function supportsColor(haveStream, streamIsTTY) {
 		return 1;
 	}
 
+	if (env.TERM === 'dumb') {
+		return min;
+	}
+
 	return min;
 }
 
 function getSupportLevel(stream) {
-	const level = supportsColor(stream, stream && stream.isTTY);
+	const level = supportsColor(stream);
 	return translateLevel(level);
 }
 
 module.exports = {
 	supportsColor: getSupportLevel,
-	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
-	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
+	stdout: getSupportLevel(process.stdout),
+	stderr: getSupportLevel(process.stderr)
 };
 
 
@@ -104547,6 +104810,38 @@ if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
   debug = function() {};
 }
 exports.debug = debug; // for test
+
+
+/***/ }),
+
+/***/ 9046:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+
+exports.fromCallback = function (fn) {
+  return Object.defineProperty(function (...args) {
+    if (typeof args[args.length - 1] === 'function') fn.apply(this, args)
+    else {
+      return new Promise((resolve, reject) => {
+        fn.call(
+          this,
+          ...args,
+          (err, res) => (err != null) ? reject(err) : resolve(res)
+        )
+      })
+    }
+  }, 'name', { value: fn.name })
+}
+
+exports.fromPromise = function (fn) {
+  return Object.defineProperty(function (...args) {
+    const cb = args[args.length - 1]
+    if (typeof cb !== 'function') return fn.apply(this, args)
+    else fn.apply(this, args.slice(0, -1)).then(r => cb(null, r), cb)
+  }, 'name', { value: fn.name })
+}
 
 
 /***/ }),
