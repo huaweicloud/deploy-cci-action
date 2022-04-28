@@ -53,6 +53,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
       yaml.stringify(namespaceContent),
       'utf8'
     );
+    core.info(await utils.execCommand('cat ' + namespaceFileName));
     applyNamespace(namespaceFileName);
 
     // 新建Network
@@ -198,6 +199,7 @@ export async function isNamespaceExist(namespace: string): Promise<boolean> {
     const result = await utils.execCommand(
       "kubectl get ns | awk '{if (NR > 1) {print $1}}'"
     );
+    core.info(result);
     if (result.includes(namespace)) {
       isExist = true;
     }
@@ -334,7 +336,7 @@ export async function getCCINetworkSubnetID(
     subnetID = spec.subnetID;
   }
 
-  if (spec == null && spec == undefined) {
+  if (subnetID == null && subnetID == undefined) {
     throw new Error('Get CCINetwork SubnetID Faild: ' + JSON.stringify(result));
   }
 

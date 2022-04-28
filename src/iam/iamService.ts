@@ -23,5 +23,16 @@ export async function keystoneListAuthDomains(
   if (result.httpStatusCode >= 300) {
     core.setFailed('Keystone List Auth Domains Failed.');
   }
-  return Promise.resolve(result.domains[0].id);
+  if (result.domains instanceof Array) {
+    if (result.domains.length <=0) {
+      core.setFailed('Keystone List Auth Domains Failed.');
+    }
+    const id = result.domains[0].id;
+    if (typeof(id) == 'string') {
+      return Promise.resolve(id);
+    }
+  }
+  throw new Error(
+    'Keystone List Auth Domains Failed.'
+  );
 }
