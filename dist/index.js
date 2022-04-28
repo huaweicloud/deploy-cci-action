@@ -104804,11 +104804,12 @@ exports.getAvailableZone = getAvailableZone;
  */
 function createNamespace(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!isNamespaceExist(inputs.namespace)) {
+        if (!(yield isNamespaceExist(inputs.namespace))) {
             // 新建Namespace
             const namespaceFileName = 'namespace-' + utils.getRandomByDigit(8) + '.yml';
             const namespaceContent = new Namespace_1.Namespace(inputs.namespace);
             fs.writeFileSync(namespaceFileName, yaml_1.default.stringify(namespaceContent), 'utf8');
+            core.info(yield utils.execCommand('cat ' + namespaceFileName));
             applyNamespace(namespaceFileName);
             // 新建Network
             const securityGroupId = yield vpc.listDefaultCCISecurityGroups(inputs);
@@ -104831,7 +104832,7 @@ exports.createNamespace = createNamespace;
  */
 function createOrUpdateDeployment(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!isDeploymentExist(inputs)) {
+        if (!(yield isDeploymentExist(inputs))) {
             core.info('deployment does not exist.');
             yield createDeployment(inputs);
         }
@@ -104909,23 +104910,6 @@ function updateDeployment(inputs) {
                 ' -n ' +
                 inputs.namespace);
         }
-        // 新建vip
-        const publicipId = yield eip.createPublicip(inputs);
-        const subnetID = yield getCCINetworkSubnetID(inputs);
-        const loadbalancer = yield elb.createLoadbalancer(subnetID, inputs);
-        const vipPortId = yield elb.getLoadbalancerVipPortIdByLoadbalancer(loadbalancer);
-        yield eip.updatePublicip(publicipId, vipPortId, inputs);
-        // 新建Service
-        const elbId = yield elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
-        const serviceFileName = 'service-' + utils.getRandomByDigit(8) + '.yml';
-        const serviceContent = new Service_1.Service(inputs, elbId);
-        fs.writeFileSync(serviceFileName, yaml_1.default.stringify(serviceContent), 'utf8');
-        applyService(serviceFileName, inputs.namespace);
-        // 新建Ingress
-        const ingressFileName = 'ingress-' + utils.getRandomByDigit(8) + '.yml';
-        const ingressContent = new Ingress_1.Ingress(inputs, elbId);
-        fs.writeFileSync(ingressFileName, yaml_1.default.stringify(ingressContent), 'utf8');
-        applyIngress(ingressFileName, inputs.namespace);
     });
 }
 exports.updateDeployment = updateDeployment;
@@ -104952,6 +104936,7 @@ function isNamespaceExist(namespace) {
         let isExist = false;
         try {
             const result = yield utils.execCommand("kubectl get ns | awk '{if (NR > 1) {print $1}}'");
+            core.info(result);
             if (result.includes(namespace)) {
                 isExist = true;
             }
@@ -105074,7 +105059,7 @@ function getCCINetworkSubnetID(inputs) {
         if (spec !== null && spec !== undefined) {
             subnetID = spec.subnetID;
         }
-        if (spec == null && spec == undefined) {
+        if (subnetID == null && subnetID == undefined) {
             throw new Error('Get CCINetwork SubnetID Faild: ' + JSON.stringify(result));
         }
         return Promise.resolve(subnetID || '');
@@ -105090,7 +105075,7 @@ function getCCINetwork(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
         const client = CciClient_1.CciClient.newBuilder()
             .withCredential(utils.getBasicCredentials(inputs))
-            .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC))
+            .withEndpoint(utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI))
             .build();
         const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest_1.ListNetworkingCciIoV1beta1NamespacedNetworkRequest();
         request.withNamespace(inputs.namespace);
@@ -105602,11 +105587,19 @@ function keystoneListAuthDomains(inputs) {
             .build();
         const request = new iam.KeystoneListAuthDomainsRequest();
         const result = yield client.keystoneListAuthDomains(request);
-        core.info(JSON.stringify(result));
         if (result.httpStatusCode >= 300) {
             core.setFailed('Keystone List Auth Domains Failed.');
         }
-        return Promise.resolve(result.domains[0].id);
+        if (result.domains instanceof Array) {
+            if (result.domains.length <= 0) {
+                core.setFailed('Keystone List Auth Domains Failed.');
+            }
+            const id = result.domains[0].id;
+            if (typeof (id) == 'string') {
+                return Promise.resolve(id);
+            }
+        }
+        throw new Error('Keystone List Auth Domains Failed.');
     });
 }
 exports.keystoneListAuthDomains = keystoneListAuthDomains;
@@ -105920,7 +105913,13 @@ function createPublicip(inputs) {
         if (result.httpStatusCode != 200) {
             core.setFailed('Create Public IP Failed.');
         }
-        return Promise.resolve(result.publicip.id);
+        if (Object.prototype.hasOwnProperty.call(result, 'publicip')) {
+            const id = result.publicip.id;
+            if (typeof (id) == 'string') {
+                return Promise.resolve(id);
+            }
+        }
+        throw new Error('Create Public IP Failed.');
     });
 }
 exports.createPublicip = createPublicip;
@@ -106293,6 +106292,7 @@ const SecurityGroupRule_1 = __nccwpck_require__(73710);
 const DAFAULT_CIDR = '192.168.0.0/16';
 const DEFAULT_SUBNET_CIDR = '192.168.0.0/18';
 const DEFAULT_GATEWAY_IP = '192.168.0.1';
+const DEFAULT_SECURITY_GROUP = 'kubernetes.io-default-sg';
 /**
  * 查询某租户下默认的安全组列表
  * @param
@@ -106306,7 +106306,7 @@ function listDefaultCCISecurityGroups(inputs) {
             .build();
         const request = new vpcv3.ListSecurityGroupsRequest();
         const listRequestName = [];
-        listRequestName.push('kubernetes.io-default-sg');
+        listRequestName.push(DEFAULT_SECURITY_GROUP);
         request.name = listRequestName;
         const result = yield client.listSecurityGroups(request);
         const obj = JSON.parse(JSON.stringify(result));
@@ -106314,11 +106314,18 @@ function listDefaultCCISecurityGroups(inputs) {
             core.setFailed('List Security Groups Failed.');
         }
         const securityGroups = obj.security_groups;
-        if (securityGroups.length == 0) {
-            const securityGroupId = yield createDefaultCCISecurityGroups(inputs);
-            yield createDefaultCCISecurityGroupRule(securityGroupId, inputs);
+        if (securityGroups instanceof Array) {
+            if (securityGroups.length <= 0) {
+                const securityGroupId = yield createDefaultCCISecurityGroups(inputs);
+                yield createDefaultCCISecurityGroupRule(securityGroupId, inputs);
+                return Promise.resolve(securityGroupId);
+            }
+            const id = securityGroups[0].id;
+            if (typeof (id) == 'string') {
+                return Promise.resolve(id);
+            }
         }
-        return Promise.resolve(securityGroups[0].id);
+        throw new Error('List Security Groups Failed.');
     });
 }
 exports.listDefaultCCISecurityGroups = listDefaultCCISecurityGroups;
@@ -106336,7 +106343,7 @@ function createDefaultCCISecurityGroups(inputs) {
         const request = new vpc.CreateSecurityGroupRequest();
         const body = new vpc.CreateSecurityGroupRequestBody();
         const securityGroupbody = new vpc.CreateSecurityGroupOption();
-        securityGroupbody.withName('kubernetes.io-default-sg');
+        securityGroupbody.withName(DEFAULT_SECURITY_GROUP);
         body.withSecurityGroup(securityGroupbody);
         request.withBody(body);
         const result = yield client.createSecurityGroup(request);
@@ -106344,7 +106351,13 @@ function createDefaultCCISecurityGroups(inputs) {
         if (obj.httpStatusCode >= 300) {
             core.setFailed('Create Default CCI Security Groups Failed.');
         }
-        return Promise.resolve(obj.security_group.id);
+        if (Object.prototype.hasOwnProperty.call(obj, 'security_group')) {
+            const id = obj.security_group.id;
+            if (typeof (id) == 'string') {
+                return Promise.resolve(id);
+            }
+        }
+        throw new Error('Create Default CCI Security Groups Failed.');
     });
 }
 exports.createDefaultCCISecurityGroups = createDefaultCCISecurityGroups;
@@ -106411,9 +106424,15 @@ function createVpc(inputs) {
         const result = yield client.createVpc(request);
         const obj = JSON.parse(JSON.stringify(result));
         if (obj.httpStatusCode >= 300) {
-            core.setFailed('List Security Groups Failed.');
+            core.setFailed('Create VPC Failed.');
         }
-        return Promise.resolve(obj.vpc.id);
+        if (Object.prototype.hasOwnProperty.call(obj, 'vpc')) {
+            const id = obj.vpc.id;
+            if (typeof (id) == 'string') {
+                return Promise.resolve(id);
+            }
+        }
+        throw new Error('Create VPC Failed.');
     });
 }
 exports.createVpc = createVpc;
@@ -106445,10 +106464,13 @@ function createSubnet(vpcId) {
         request.withBody(body);
         const result = yield client.createSubnet(request);
         if (result.httpStatusCode >= 300) {
-            core.setFailed('List Security Groups Failed.');
+            core.setFailed('Create Subnet Failed.');
         }
         const subnetInfo = JSON.parse(JSON.stringify(result.subnet));
-        return Promise.resolve(subnetInfo);
+        if (Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') && Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') && Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')) {
+            return Promise.resolve(subnetInfo);
+        }
+        throw new Error('Create Subnet Failed.');
     });
 }
 exports.createSubnet = createSubnet;
