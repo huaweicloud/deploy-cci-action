@@ -44,7 +44,7 @@ export function getAvailableZone(region: string): string {
  * @returns
  */
 export async function createNamespace(inputs: context.Inputs): Promise<void> {
-  if (!isNamespaceExist(inputs.namespace)) {
+  if (!(await isNamespaceExist(inputs.namespace))) {
     // 新建Namespace
     const namespaceFileName = 'namespace-' + utils.getRandomByDigit(8) + '.yml';
     const namespaceContent = new Namespace(inputs.namespace);
@@ -53,6 +53,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
       yaml.stringify(namespaceContent),
       'utf8'
     );
+    core.info(await utils.execCommand('cat ' + namespaceFileName));
     applyNamespace(namespaceFileName);
 
     // 新建Network
@@ -86,7 +87,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
 export async function createOrUpdateDeployment(
   inputs: context.Inputs
 ): Promise<void> {
-  if (!isDeploymentExist(inputs)) {
+  if (!(await isDeploymentExist(inputs))) {
     core.info('deployment does not exist.');
     await createDeployment(inputs);
   } else {
@@ -167,28 +168,6 @@ export async function updateDeployment(inputs: context.Inputs): Promise<void> {
         inputs.namespace
     );
   }
-
-  // 新建vip
-  const publicipId = await eip.createPublicip(inputs);
-  const subnetID = await getCCINetworkSubnetID(inputs);
-  const loadbalancer = await elb.createLoadbalancer(subnetID, inputs);
-  const vipPortId = await elb.getLoadbalancerVipPortIdByLoadbalancer(
-    loadbalancer
-  );
-  await eip.updatePublicip(publicipId, vipPortId, inputs);
-
-  // 新建Service
-  const elbId = await elb.getLoadbalancerIdByLoadbalancer(loadbalancer);
-  const serviceFileName = 'service-' + utils.getRandomByDigit(8) + '.yml';
-  const serviceContent = new Service(inputs, elbId);
-  fs.writeFileSync(serviceFileName, yaml.stringify(serviceContent), 'utf8');
-  applyService(serviceFileName, inputs.namespace);
-
-  // 新建Ingress
-  const ingressFileName = 'ingress-' + utils.getRandomByDigit(8) + '.yml';
-  const ingressContent = new Ingress(inputs, elbId);
-  fs.writeFileSync(ingressFileName, yaml.stringify(ingressContent), 'utf8');
-  applyIngress(ingressFileName, inputs.namespace);
 }
 
 /*
@@ -220,6 +199,7 @@ export async function isNamespaceExist(namespace: string): Promise<boolean> {
     const result = await utils.execCommand(
       "kubectl get ns | awk '{if (NR > 1) {print $1}}'"
     );
+    core.info(result);
     if (result.includes(namespace)) {
       isExist = true;
     }
@@ -356,7 +336,7 @@ export async function getCCINetworkSubnetID(
     subnetID = spec.subnetID;
   }
 
-  if (spec == null && spec == undefined) {
+  if (subnetID == null && subnetID == undefined) {
     throw new Error('Get CCINetwork SubnetID Faild: ' + JSON.stringify(result));
   }
 
@@ -374,7 +354,7 @@ export async function getCCINetwork(
   const client = CciClient.newBuilder()
     .withCredential(utils.getBasicCredentials(inputs))
     .withEndpoint(
-      utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
+      utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI)
     )
     .build();
   const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest();

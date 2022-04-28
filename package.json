@@ -20,6 +20,7 @@
     "@huaweicloud/huaweicloud-sdk-eip": "^3.0.37-rc",
     "@huaweicloud/huaweicloud-sdk-iam": "^3.0.37-rc",
     "@huaweicloud/huaweicloud-sdk-vpc": "^3.0.37-rc",
+    "@typescript-eslint/parser": "^5.21.0",
     "@vercel/ncc": "^0.33.3",
     "prettier": "^2.6.1",
     "ts-jest": "^27.1.4",
@@ -27,12 +28,10 @@
     "yaml": "^2.0.1"
   },
   "devDependencies": {
-    "@cloud/eslint-config-cbc": "^1.7.2",
     "@types/jest": "^27.4.1",
     "@types/mime": "^2.0.3",
     "@types/node": "^17.0.23",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
-    "@typescript-eslint/parser": "^4.28.4",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
     "eslint-config-bevry": "^3.27.0",

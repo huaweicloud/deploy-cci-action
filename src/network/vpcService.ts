@@ -9,6 +9,7 @@ import {SecurityGroupRule} from './model/SecurityGroupRule';
 const DAFAULT_CIDR = '192.168.0.0/16';
 const DEFAULT_SUBNET_CIDR = '192.168.0.0/18';
 const DEFAULT_GATEWAY_IP = '192.168.0.1';
+const DEFAULT_SECURITY_GROUP = 'kubernetes.io-default-sg';
 
 /**
  * 查询某租户下默认的安全组列表
@@ -26,7 +27,7 @@ export async function listDefaultCCISecurityGroups(
     .build();
   const request = new vpcv3.ListSecurityGroupsRequest();
   const listRequestName = [];
-  listRequestName.push('kubernetes.io-default-sg');
+  listRequestName.push(DEFAULT_SECURITY_GROUP);
   request.name = listRequestName;
   const result: vpcv3.ListSecurityGroupsResponse =
     await client.listSecurityGroups(request);
@@ -35,11 +36,18 @@ export async function listDefaultCCISecurityGroups(
     core.setFailed('List Security Groups Failed.');
   }
   const securityGroups = obj.security_groups;
-  if (securityGroups.length == 0) {
-    const securityGroupId = await createDefaultCCISecurityGroups(inputs);
-    await createDefaultCCISecurityGroupRule(securityGroupId, inputs);
+  if (securityGroups instanceof Array) {
+    if (securityGroups.length <= 0) {
+      const securityGroupId = await createDefaultCCISecurityGroups(inputs);
+      await createDefaultCCISecurityGroupRule(securityGroupId, inputs);
+      return Promise.resolve(securityGroupId);
+    }
+    const id = securityGroups[0].id;
+    if (typeof id == 'string') {
+      return Promise.resolve(id);
+    }
   }
-  return Promise.resolve(securityGroups[0].id);
+  throw new Error('List Security Groups Failed.');
 }
 
 /**
@@ -59,7 +67,7 @@ export async function createDefaultCCISecurityGroups(
   const request = new vpc.CreateSecurityGroupRequest();
   const body = new vpc.CreateSecurityGroupRequestBody();
   const securityGroupbody = new vpc.CreateSecurityGroupOption();
-  securityGroupbody.withName('kubernetes.io-default-sg');
+  securityGroupbody.withName(DEFAULT_SECURITY_GROUP);
   body.withSecurityGroup(securityGroupbody);
   request.withBody(body);
   const result = await client.createSecurityGroup(request);
@@ -67,7 +75,13 @@ export async function createDefaultCCISecurityGroups(
   if (obj.httpStatusCode >= 300) {
     core.setFailed('Create Default CCI Security Groups Failed.');
   }
-  return Promise.resolve(obj.security_group.id);
+  if (Object.prototype.hasOwnProperty.call(obj, 'security_group')) {
+    const id = obj.security_group.id;
+    if (typeof id == 'string') {
+      return Promise.resolve(id);
+    }
+  }
+  throw new Error('Create Default CCI Security Groups Failed.');
 }
 
 /**
@@ -79,7 +93,7 @@ export async function createDefaultCCISecurityGroupRule(
   securityGroupId: string,
   inputs: context.Inputs
 ): Promise<void> {
-  const client = vpc.VpcClient.newBuilder()
+  const client = vpcv3.VpcClient.newBuilder()
     .withCredential(utils.getBasicCredentials(inputs))
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
@@ -92,9 +106,9 @@ export async function createDefaultCCISecurityGroupRule(
   ];
 
   securityGroupRules.forEach(async function (securityGroupRule) {
-    const request = new vpc.CreateSecurityGroupRuleRequest();
-    const body = new vpc.CreateSecurityGroupRuleRequestBody();
-    const securityGroupRulebody = new vpc.CreateSecurityGroupRuleOption();
+    const request = new vpcv3.CreateSecurityGroupRuleRequest();
+    const body = new vpcv3.CreateSecurityGroupRuleRequestBody();
+    const securityGroupRulebody = new vpcv3.CreateSecurityGroupRuleOption();
     securityGroupRulebody
       .withSecurityGroupId(securityGroupRule.securityGroupId)
       .withDirection(securityGroupRule.direction)
@@ -137,9 +151,15 @@ export async function createVpc(inputs: context.Inputs): Promise<string> {
   const result = await client.createVpc(request);
   const obj = JSON.parse(JSON.stringify(result));
   if (obj.httpStatusCode >= 300) {
-    core.setFailed('List Security Groups Failed.');
+    core.setFailed('Create VPC Failed.');
   }
-  return Promise.resolve(obj.vpc.id);
+  if (Object.prototype.hasOwnProperty.call(obj, 'vpc')) {
+    const id = obj.vpc.id;
+    if (typeof id == 'string') {
+      return Promise.resolve(id);
+    }
+  }
+  throw new Error('Create VPC Failed.');
 }
 
 /**
@@ -172,8 +192,15 @@ export async function createSubnet(vpcId: string): Promise<SubnetInfo> {
   request.withBody(body);
   const result = await client.createSubnet(request);
   if (result.httpStatusCode >= 300) {
-    core.setFailed('List Security Groups Failed.');
+    core.setFailed('Create Subnet Failed.');
   }
   const subnetInfo: SubnetInfo = JSON.parse(JSON.stringify(result.subnet));
-  return Promise.resolve(subnetInfo);
+  if (
+    Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') &&
+    Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') &&
+    Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')
+  ) {
+    return Promise.resolve(subnetInfo);
+  }
+  throw new Error('Create Subnet Failed.');
 }
