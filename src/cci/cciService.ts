@@ -44,7 +44,7 @@ export function getAvailableZone(region: string): string {
  * @returns
  */
 export async function createNamespace(inputs: context.Inputs): Promise<void> {
-  if (!await isNamespaceExist(inputs.namespace)) {
+  if (!(await isNamespaceExist(inputs.namespace))) {
     // 新建Namespace
     const namespaceFileName = 'namespace-' + utils.getRandomByDigit(8) + '.yml';
     const namespaceContent = new Namespace(inputs.namespace);
@@ -87,7 +87,7 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
 export async function createOrUpdateDeployment(
   inputs: context.Inputs
 ): Promise<void> {
-  if (!await isDeploymentExist(inputs)) {
+  if (!(await isDeploymentExist(inputs))) {
     core.info('deployment does not exist.');
     await createDeployment(inputs);
   } else {

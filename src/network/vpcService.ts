@@ -43,13 +43,11 @@ export async function listDefaultCCISecurityGroups(
       return Promise.resolve(securityGroupId);
     }
     const id = securityGroups[0].id;
-    if (typeof(id) == 'string') {
+    if (typeof id == 'string') {
       return Promise.resolve(id);
     }
   }
-  throw new Error(
-    'List Security Groups Failed.'
-  );
+  throw new Error('List Security Groups Failed.');
 }
 
 /**
@@ -79,13 +77,11 @@ export async function createDefaultCCISecurityGroups(
   }
   if (Object.prototype.hasOwnProperty.call(obj, 'security_group')) {
     const id = obj.security_group.id;
-    if (typeof(id) == 'string') {
+    if (typeof id == 'string') {
       return Promise.resolve(id);
     }
   }
-  throw new Error(
-    'Create Default CCI Security Groups Failed.'
-  );
+  throw new Error('Create Default CCI Security Groups Failed.');
 }
 
 /**
@@ -159,13 +155,11 @@ export async function createVpc(inputs: context.Inputs): Promise<string> {
   }
   if (Object.prototype.hasOwnProperty.call(obj, 'vpc')) {
     const id = obj.vpc.id;
-    if (typeof(id) == 'string') {
+    if (typeof id == 'string') {
       return Promise.resolve(id);
     }
   }
-  throw new Error(
-    'Create VPC Failed.'
-  );
+  throw new Error('Create VPC Failed.');
 }
 
 /**
@@ -201,10 +195,12 @@ export async function createSubnet(vpcId: string): Promise<SubnetInfo> {
     core.setFailed('Create Subnet Failed.');
   }
   const subnetInfo: SubnetInfo = JSON.parse(JSON.stringify(result.subnet));
-  if (Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') && Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') && Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')) {
+  if (
+    Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') &&
+    Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') &&
+    Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')
+  ) {
     return Promise.resolve(subnetInfo);
   }
-  throw new Error(
-    'Create Subnet Failed.'
-  );
+  throw new Error('Create Subnet Failed.');
 }

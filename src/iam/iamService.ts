@@ -24,15 +24,13 @@ export async function keystoneListAuthDomains(
     core.setFailed('Keystone List Auth Domains Failed.');
   }
   if (result.domains instanceof Array) {
-    if (result.domains.length <=0) {
+    if (result.domains.length <= 0) {
       core.setFailed('Keystone List Auth Domains Failed.');
     }
     const id = result.domains[0].id;
-    if (typeof(id) == 'string') {
+    if (typeof id == 'string') {
       return Promise.resolve(id);
     }
   }
-  throw new Error(
-    'Keystone List Auth Domains Failed.'
-  );
+  throw new Error('Keystone List Auth Domains Failed.');
 }

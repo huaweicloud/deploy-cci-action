@@ -38,13 +38,11 @@ export async function createPublicip(inputs: context.Inputs): Promise<string> {
   }
   if (Object.prototype.hasOwnProperty.call(result, 'publicip')) {
     const id = result.publicip.id;
-    if (typeof(id) == 'string') {
+    if (typeof id == 'string') {
       return Promise.resolve(id);
     }
   }
-  throw new Error(
-    'Create Public IP Failed.'
-  );
+  throw new Error('Create Public IP Failed.');
 }
 
 /**
