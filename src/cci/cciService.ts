@@ -358,7 +358,7 @@ export async function getCCINetwork(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI)
     )
-    .withOptions({customUserAgent: "DevKit-GitHub:HuaweiCloud CCI Deoloy"})
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest();
   request.withNamespace(inputs.namespace);
