@@ -18,6 +18,7 @@ import {Ingress} from './manifest/Ingress';
 import {SubnetInfo} from '../network/model/SubnetInfo';
 import {ListNetworkingCciIoV1beta1NamespacedNetworkRequest} from './model/ListNetworkingCciIoV1beta1NamespacedNetworkRequest';
 import {ListNetworkingCciIoV1beta1NamespacedNetworkResponse} from './model/ListNetworkingCciIoV1beta1NamespacedNetworkResponse';
+import {ReadCoreV1NamespaceRequest} from './model/ReadCoreV1NamespaceRequest';
 
 const DEFAULT_AVAILABLE_ZONE_MAP = new Map<string, string>([
   ['cn-north-4', 'cn-north-4a'],
@@ -44,7 +45,7 @@ export function getAvailableZone(region: string): string {
  * @returns
  */
 export async function createNamespace(inputs: context.Inputs): Promise<void> {
-  if (!(await isNamespaceExist(inputs.namespace))) {
+  if (!(await isNamespaceExist(inputs))) {
     // 新建Namespace
     const namespaceFileName = 'namespace-' + utils.getRandomByDigit(8) + '.yml';
     const namespaceContent = new Namespace(inputs.namespace);
@@ -193,19 +194,20 @@ export async function updateImage(
  * @param namespace
  * @returns
  */
-export async function isNamespaceExist(namespace: string): Promise<boolean> {
+ export async function isNamespaceExist(inputs: context.Inputs): Promise<boolean> {
+  console.log("isNamespaceExist")
   let isExist = false;
-  try {
-    const result = await utils.execCommand(
-      "kubectl get ns | awk '{if (NR > 1) {print $1}}'"
-    );
-    core.info(result);
-    if (result.includes(namespace)) {
-      isExist = true;
-    }
-  } catch (error) {
-    core.info(`${namespace}` + ' namespace does not exist.');
-    isExist = false;
+  const client = CciClient.newBuilder()
+    .withCredential(utils.getBasicCredentials(inputs))
+    .withEndpoint(
+      utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI)
+    )
+    .build();
+  const request = new ReadCoreV1NamespaceRequest();
+  request.withNamespace(inputs.namespace);
+  const result = await client.readCoreV1Namespace(request);
+  if (result.httpStatusCode === 200) {
+    isExist = true;
   }
   return isExist;
 }

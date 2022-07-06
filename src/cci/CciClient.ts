@@ -4,6 +4,8 @@ import {HcClient} from '@huaweicloud/huaweicloud-sdk-core/HcClient';
 import {ClientBuilder} from '@huaweicloud/huaweicloud-sdk-core/ClientBuilder';
 import {ListNetworkingCciIoV1beta1NamespacedNetworkRequest} from './model/ListNetworkingCciIoV1beta1NamespacedNetworkRequest';
 import {ListNetworkingCciIoV1beta1NamespacedNetworkResponse} from './model/ListNetworkingCciIoV1beta1NamespacedNetworkResponse';
+import {ReadCoreV1NamespaceRequest} from './model/ReadCoreV1NamespaceRequest';
+import {ReadCoreV1NamespaceResponse} from './model/ReadCoreV1NamespaceResponse';
 
 export class CciClient {
   public static newBuilder(): ClientBuilder<CciClient> {
@@ -33,6 +35,20 @@ export class CciClient {
     );
     return this.hcClient.sendRequest(options);
   }
+
+  /**
+   * 查询Namespace的详细信息。
+   * @param {string} namespace cci命名空间
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   */
+   public readCoreV1Namespace(readCoreV1NamespaceRequest?: ReadCoreV1NamespaceRequest
+    ): Promise<ReadCoreV1NamespaceResponse> {
+      const options = ParamCreater().readCoreV1Namespace(
+        readCoreV1NamespaceRequest
+      );
+      return this.hcClient.sendRequest(options);
+    }
 }
 
 export const ParamCreater = function () {
@@ -69,6 +85,50 @@ export const ParamCreater = function () {
         } else {
           namespace =
             listNetworkingCciIoV1beta1NamespacedNetworkRequest['namespace'];
+        }
+      }
+
+      if (namespace === null || namespace === undefined) {
+        core.setFailed('input parameters namespace is not correct.');
+      }
+
+      options.pathParams = {namespace: namespace};
+      options.headers = localVarHeaderParameter;
+      return options;
+    },
+
+    /**
+     * 查询Namespace的详细信息。
+     */
+     readCoreV1Namespace(
+      readCoreV1NamespaceRequest?: ReadCoreV1NamespaceRequest
+    ) {
+      const options = {
+        method: Constants.METHOD_GET,
+        url: '/api/v1/namespaces/{namespace}',
+        contentType: Constants.CONTENT_TYPEAPPLICATION_JSON,
+        queryParams: {},
+        pathParams: {},
+        headers: {},
+        data: {}
+      };
+      const localVarHeaderParameter = {} as any;
+
+      let namespace;
+
+      if (
+        readCoreV1NamespaceRequest !== null &&
+        readCoreV1NamespaceRequest !== undefined
+      ) {
+        if (
+          readCoreV1NamespaceRequest instanceof
+          ReadCoreV1NamespaceRequest
+        ) {
+          namespace =
+            readCoreV1NamespaceRequest.namespace;
+        } else {
+          namespace =
+            readCoreV1NamespaceRequest['namespace'];
         }
       }
 
