@@ -195,13 +195,13 @@ export async function updateImage(
  * @returns
  */
  export async function isNamespaceExist(inputs: context.Inputs): Promise<boolean> {
-  console.log("isNamespaceExist")
   let isExist = false;
   const client = CciClient.newBuilder()
     .withCredential(utils.getBasicCredentials(inputs))
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new ReadCoreV1NamespaceRequest();
   request.withNamespace(inputs.namespace);
@@ -358,6 +358,7 @@ export async function getCCINetwork(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI)
     )
+    .withOptions({customUserAgent: "DevKit-GitHub:HuaweiCloud CCI Deoloy"})
     .build();
   const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest();
   request.withNamespace(inputs.namespace);

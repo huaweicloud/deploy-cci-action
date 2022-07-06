@@ -24,6 +24,7 @@ export async function listDefaultCCISecurityGroups(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new vpcv3.ListSecurityGroupsRequest();
   const listRequestName = [];
@@ -63,6 +64,7 @@ export async function createDefaultCCISecurityGroups(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new vpc.CreateSecurityGroupRequest();
   const body = new vpc.CreateSecurityGroupRequestBody();
@@ -98,6 +100,7 @@ export async function createDefaultCCISecurityGroupRule(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const securityGroupRules: Array<SecurityGroupRule> = [
     new SecurityGroupRule(securityGroupId, 'ICMP', '8-0'),
@@ -141,6 +144,7 @@ export async function createVpc(inputs: context.Inputs): Promise<string> {
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new vpc.CreateVpcRequest();
   const body = new vpc.CreateVpcRequestBody();
@@ -176,6 +180,7 @@ export async function createSubnet(vpcId: string): Promise<SubnetInfo> {
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new vpc.CreateSubnetRequest();
   const body = new vpc.CreateSubnetRequestBody();

@@ -17,6 +17,7 @@ export async function createPublicip(inputs: context.Inputs): Promise<string> {
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new eip.CreatePublicipRequest();
   const body = new eip.CreatePublicipRequestBody();
@@ -60,6 +61,7 @@ export async function updatePublicip(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.VPC)
     )
+    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
     .build();
   const request = new eip.UpdatePublicipRequest();
   request.publicipId = publicipId;
