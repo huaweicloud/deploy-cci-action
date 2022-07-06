@@ -80,7 +80,7 @@ export async function createLoadbalancer(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.ELB)
     )
-    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
+    .withOptions({customUserAgent: "DevKit-GitHub:HuaweiCloud CCI Deoloy"})
     .build();
   const request = new CreateLoadbalancerRequest();
   const body = new CreateLoadbalancerRequestBody();

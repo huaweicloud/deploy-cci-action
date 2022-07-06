@@ -17,7 +17,7 @@ export async function keystoneListAuthDomains(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.IAM)
     )
-    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
+    .withOptions({customUserAgent: "DevKit-GitHub:HuaweiCloud CCI Deoloy"})
     .build();
   const request = new iam.KeystoneListAuthDomainsRequest();
   const result = await client.keystoneListAuthDomains(request);
