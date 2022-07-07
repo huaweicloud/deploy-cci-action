@@ -42,13 +42,14 @@ export class CciClient {
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    */
-   public readCoreV1Namespace(readCoreV1NamespaceRequest?: ReadCoreV1NamespaceRequest
-    ): Promise<ReadCoreV1NamespaceResponse> {
-      const options = ParamCreater().readCoreV1Namespace(
-        readCoreV1NamespaceRequest
-      );
-      return this.hcClient.sendRequest(options);
-    }
+  public readCoreV1Namespace(
+    readCoreV1NamespaceRequest?: ReadCoreV1NamespaceRequest
+  ): Promise<ReadCoreV1NamespaceResponse> {
+    const options = ParamCreater().readCoreV1Namespace(
+      readCoreV1NamespaceRequest
+    );
+    return this.hcClient.sendRequest(options);
+  }
 }
 
 export const ParamCreater = function () {
@@ -100,7 +101,7 @@ export const ParamCreater = function () {
     /**
      * 查询Namespace的详细信息。
      */
-     readCoreV1Namespace(
+    readCoreV1Namespace(
       readCoreV1NamespaceRequest?: ReadCoreV1NamespaceRequest
     ) {
       const options = {
@@ -120,15 +121,10 @@ export const ParamCreater = function () {
         readCoreV1NamespaceRequest !== null &&
         readCoreV1NamespaceRequest !== undefined
       ) {
-        if (
-          readCoreV1NamespaceRequest instanceof
-          ReadCoreV1NamespaceRequest
-        ) {
-          namespace =
-            readCoreV1NamespaceRequest.namespace;
+        if (readCoreV1NamespaceRequest instanceof ReadCoreV1NamespaceRequest) {
+          namespace = readCoreV1NamespaceRequest.namespace;
         } else {
-          namespace =
-            readCoreV1NamespaceRequest['namespace'];
+          namespace = readCoreV1NamespaceRequest['namespace'];
         }
       }
 

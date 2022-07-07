@@ -12,7 +12,7 @@ export class MetadataResp {
   public get _name() {
     return this['name'];
   }
-  
+
   public withUid(uid: string): MetadataResp {
     this['uid'] = uid;
     return this;

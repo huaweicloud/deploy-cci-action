@@ -194,7 +194,9 @@ export async function updateImage(
  * @param namespace
  * @returns
  */
- export async function isNamespaceExist(inputs: context.Inputs): Promise<boolean> {
+export async function isNamespaceExist(
+  inputs: context.Inputs
+): Promise<boolean> {
   let isExist = false;
   const client = CciClient.newBuilder()
     .withCredential(utils.getBasicCredentials(inputs))

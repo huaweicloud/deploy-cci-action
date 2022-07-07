@@ -8,9 +8,5 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest'
   },
   verbose: true,
-  collectCoverageFrom: [
-    'src/*.{ts,tsx}',
-    '!**/model/**',
-    '!**/manifest/**',
-]
-}
+  collectCoverageFrom: ['src/*.{ts,tsx}', '!**/model/**', '!**/manifest/**']
+};
