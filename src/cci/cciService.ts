@@ -34,7 +34,7 @@ const DEFAULT_AVAILABLE_ZONE_MAP = new Map<string, string>([
  */
 export function getAvailableZone(region: string): string {
   if (!DEFAULT_AVAILABLE_ZONE_MAP.has(region)) {
-    core.info(`${region}` + ' available zone does not exist.');
+    core.info(`${region} available zone does not exist.`);
   }
   return DEFAULT_AVAILABLE_ZONE_MAP.get(region) || '';
 }
@@ -183,7 +183,7 @@ export async function updateImage(
 
   const data = fs.readFileSync(manifestPath, 'utf8');
   const placeholder = data.replace(
-    RegExp('image: .*'),
+    RegExp(/image: .*/),
     "image: '" + image + "'"
   );
   fs.writeFileSync(manifestPath, placeholder, 'utf8');
@@ -340,7 +340,7 @@ export async function getCCINetworkSubnetID(
     subnetID = spec.subnetID;
   }
 
-  if (subnetID == null && subnetID == undefined) {
+  if (subnetID === null && subnetID == undefined) {
     throw new Error('Get CCINetwork SubnetID Faild: ' + JSON.stringify(result));
   }
 

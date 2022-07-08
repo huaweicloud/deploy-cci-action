@@ -27,7 +27,7 @@ export async function getLoadbalancerVipPortIdByLoadbalancer(
     vipPortId = loadbalancerResp.vip_port_id;
   }
 
-  if (vipPortId == null && vipPortId == undefined) {
+  if (vipPortId === null && vipPortId == undefined) {
     throw new Error(
       'Get Loadbanlancer vipPortId Faild: ' + JSON.stringify(loadbalancerResp)
     );

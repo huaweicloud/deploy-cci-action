@@ -24,8 +24,8 @@ const regionArray: string[] = [
  * @returns
  */
 export function checkAkSk(accessKey: string, secretKey: string): boolean {
-  const akReg = new RegExp('^[a-zA-Z0-9]{10,30}$');
-  const skReg = new RegExp('^[a-zA-Z0-9]{30,50}$');
+  const akReg = new RegExp(/^[a-zA-Z0-9]{10,30}$/);
+  const skReg = new RegExp(/^[a-zA-Z0-9]{30,50}$/);
   return akReg.test(accessKey) && skReg.test(secretKey);
 }
 
@@ -120,13 +120,13 @@ export function isDeploymentNameConsistent(
   const obsJson = yaml.parse(file);
 
   const metadata = obsJson.metadata;
-  if (metadata == null && metadata == undefined) {
+  if (metadata === null && metadata == undefined) {
     core.info('manifest file is not correct.');
     return false;
   }
 
   const deploymentName = metadata.name;
-  if (deploymentName == null && deploymentName == undefined) {
+  if (deploymentName === null && deploymentName == undefined) {
     core.info('manifest file is not correct.');
     return false;
   }
@@ -143,7 +143,7 @@ export function isDeploymentNameConsistent(
  * @returns
  */
 export function checkImage(image: string, region: string): boolean {
-  if (new RegExp('swr..{5,20}.myhuaweicloud.com').test(image)) {
+  if (new RegExp(/swr..{5,20}.myhuaweicloud.com/).test(image)) {
     if (image.indexOf(region) == -1) {
       core.info('The region of cci and swr must be the same.');
       return false;
