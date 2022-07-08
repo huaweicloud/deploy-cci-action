@@ -187,6 +187,18 @@ describe('test whether the imageList parameter is valid', () => {
       region: 'cn-north-4',
       image: 'swr.cn-south-1.myhuaweicloud.com/demo-test/demo:v1.2',
       result: false
+    },
+    {
+      description: 'swr镜像地址不合法-字符开头不是swr.',
+      region: 'cn-north-4',
+      image: 'swrcn-north-4.myhuaweicloud.com/demo-test/demo:v1.2',
+      result: false
+    },
+    {
+      description: 'swr镜像地址不合法-域名不对',
+      region: 'cn-north-4',
+      image: 'swrcn-north-4myhuaweicloudcom/demo-test/demo:v1.2',
+      result: false
     }
   ];
   testCase.forEach(item => {

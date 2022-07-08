@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as utils from './utils';
 
 export async function downloadCciIamAuthenticator(): Promise<void> {
-  core.info('start install cci-iam-authenticator');
+  core.info('start to install cci-iam-authenticator');
   const platform = os.platform();
   core.info('platform: ' + platform);
   await installCciIamAuthenticatorByPlatform(platform);
