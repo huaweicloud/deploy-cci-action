@@ -35,7 +35,7 @@ export function checkAkSk(accessKey: string, secretKey: string): boolean {
  * @returns
  */
 export function checkProjectId(projectId: string): boolean {
-  const projectIdReg = new RegExp('^[a-zA-Z0-9]{16,64}$');
+  const projectIdReg = new RegExp(/^[a-zA-Z0-9]{16,64}$/);
   return projectIdReg.test(projectId);
 }
 

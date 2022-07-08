@@ -57,7 +57,7 @@ export async function getLoadbalancerIdByLoadbalancer(
     id = loadbalancerResp.id;
   }
 
-  if (id == null && id == undefined) {
+  if (id === null && id == undefined) {
     throw new Error(
       'get Loadbanlancer ID Faild: ' + JSON.stringify(loadbalancerResp)
     );
