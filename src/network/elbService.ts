@@ -27,7 +27,7 @@ export async function getLoadbalancerVipPortIdByLoadbalancer(
     vipPortId = loadbalancerResp.vip_port_id;
   }
 
-  if (vipPortId === null && vipPortId == undefined) {
+  if (vipPortId === null || vipPortId == undefined) {
     throw new Error(
       'Get Loadbanlancer vipPortId Faild: ' + JSON.stringify(loadbalancerResp)
     );
@@ -57,7 +57,7 @@ export async function getLoadbalancerIdByLoadbalancer(
     id = loadbalancerResp.id;
   }
 
-  if (id === null && id == undefined) {
+  if (id === null || id == undefined) {
     throw new Error(
       'get Loadbanlancer ID Faild: ' + JSON.stringify(loadbalancerResp)
     );
@@ -80,7 +80,7 @@ export async function createLoadbalancer(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.ELB)
     )
-    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
+    .withOptions({customUserAgent: context.CUSTOM_USER_AGENT})
     .build();
   const request = new CreateLoadbalancerRequest();
   const body = new CreateLoadbalancerRequestBody();

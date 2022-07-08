@@ -18,15 +18,27 @@ const regionArray: string[] = [
   'cn-south-1'
 ];
 
+// 正则校验表达式
+const ACCESS_KEY_REG = RegExp(/^[a-zA-Z0-9]{10,30}$/);
+const SECRET_KEY_REG = RegExp(/^[a-zA-Z0-9]{30,50}$/);
+
+const PROJECT_ID_REG = new RegExp(/^[a-zA-Z0-9]{16,64}$/);
+
+const MORE_THAN_ONE_CHAR_NAMESPACE_REG = new RegExp(/^[a-z0-9]{1}[a-z0-9\\-]{0,61}[a-z0-9]{1}$/);
+const ONE_CHAR_NAMESPACE_REG = new RegExp(/^[a-z0-9]$/);
+
+const MORE_THAN_ONE_CHAR_DEPLOYMENT_REG = new RegExp(/^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$/);
+const ONE_CHAR_DEPLOYMENT_REG = new RegExp(/^[a-z0-9]$/);
+
+const SWR_REG = new RegExp(/swr\..{5,20}\.myhuaweicloud\.com/);
+
 /**
  * 检查aksk是否合法
  * @param inputs
  * @returns
  */
 export function checkAkSk(accessKey: string, secretKey: string): boolean {
-  const akReg = new RegExp(/^[a-zA-Z0-9]{10,30}$/);
-  const skReg = new RegExp(/^[a-zA-Z0-9]{30,50}$/);
-  return akReg.test(accessKey) && skReg.test(secretKey);
+  return ACCESS_KEY_REG.test(accessKey) && SECRET_KEY_REG.test(secretKey);
 }
 
 /**
@@ -35,8 +47,7 @@ export function checkAkSk(accessKey: string, secretKey: string): boolean {
  * @returns
  */
 export function checkProjectId(projectId: string): boolean {
-  const projectIdReg = new RegExp(/^[a-zA-Z0-9]{16,64}$/);
-  return projectIdReg.test(projectId);
+  return PROJECT_ID_REG.test(projectId);
 }
 
 /**
@@ -54,9 +65,7 @@ export function checkRegion(region: string): boolean {
  * @returns
  */
 export function checkNamespace(namespace: string): boolean {
-  const namespaceReg1 = new RegExp(/^[a-z0-9]{1}[a-z0-9\\-]{0,61}[a-z0-9]{1}$/);
-  const namespaceReg2 = new RegExp(/^[a-z0-9]$/);
-  return namespaceReg1.test(namespace) || namespaceReg2.test(namespace);
+  return MORE_THAN_ONE_CHAR_NAMESPACE_REG.test(namespace) || ONE_CHAR_NAMESPACE_REG.test(namespace);
 }
 
 /**
@@ -65,14 +74,12 @@ export function checkNamespace(namespace: string): boolean {
  * @returns
  */
 export function checkDeployment(deployment: string): boolean {
-  const deploymentReg1 = new RegExp(/^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$/);
-  const deploymentReg2 = new RegExp(/^[a-z0-9]$/);
   const isSpecialCharacterConnector =
     deployment.includes('..') ||
     deployment.includes('.-') ||
     deployment.includes('-.');
   return (
-    (deploymentReg1.test(deployment) || deploymentReg2.test(deployment)) &&
+    (MORE_THAN_ONE_CHAR_DEPLOYMENT_REG.test(deployment) || ONE_CHAR_DEPLOYMENT_REG.test(deployment)) &&
     !isSpecialCharacterConnector
   );
 }
@@ -120,13 +127,13 @@ export function isDeploymentNameConsistent(
   const obsJson = yaml.parse(file);
 
   const metadata = obsJson.metadata;
-  if (metadata === null && metadata == undefined) {
+  if (metadata === null || metadata == undefined) {
     core.info('manifest file is not correct.');
     return false;
   }
 
   const deploymentName = metadata.name;
-  if (deploymentName === null && deploymentName == undefined) {
+  if (deploymentName === null || deploymentName == undefined) {
     core.info('manifest file is not correct.');
     return false;
   }
@@ -143,11 +150,15 @@ export function isDeploymentNameConsistent(
  * @returns
  */
 export function checkImage(image: string, region: string): boolean {
-  if (new RegExp(/swr..{5,20}.myhuaweicloud.com/).test(image)) {
-    if (image.indexOf(region) == -1) {
-      core.info('The region of cci and swr must be the same.');
-      return false;
-    }
+  if(!image.startsWith('swr')) {
+    return true;
+  }
+  if (!SWR_REG.test(image)) {
+    return false;
+  }
+  if (image.indexOf(region) == -1) {
+    core.info('The region of cci and swr must be the same.');
+    return false;
   }
   return true;
 }

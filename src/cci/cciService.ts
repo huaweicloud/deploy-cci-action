@@ -203,7 +203,7 @@ export async function isNamespaceExist(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI)
     )
-    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
+    .withOptions({customUserAgent: context.CUSTOM_USER_AGENT})
     .build();
   const request = new ReadCoreV1NamespaceRequest();
   request.withNamespace(inputs.namespace);
@@ -340,7 +340,7 @@ export async function getCCINetworkSubnetID(
     subnetID = spec.subnetID;
   }
 
-  if (subnetID === null && subnetID == undefined) {
+  if (subnetID === null || subnetID == undefined) {
     throw new Error('Get CCINetwork SubnetID Faild: ' + JSON.stringify(result));
   }
 
@@ -360,7 +360,7 @@ export async function getCCINetwork(
     .withEndpoint(
       utils.getEndpoint(inputs.region, context.EndpointServiceName.CCI)
     )
-    .withOptions({customUserAgent: context.CUSTOM_USER_AHENT})
+    .withOptions({customUserAgent: context.CUSTOM_USER_AGENT})
     .build();
   const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest();
   request.withNamespace(inputs.namespace);

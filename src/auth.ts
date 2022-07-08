@@ -16,6 +16,5 @@ export async function configCciAuth(): Promise<void> {
       ' --sk=' +
       input.secretKey
   );
-  console.log(result);
   core.info('generate-kubeconfig result: ' + result);
 }
