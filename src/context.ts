@@ -30,3 +30,5 @@ export enum EndpointServiceName {
   IAM = 'iam',
   CCI = 'cci'
 }
+
+export const CUSTOM_USER_AGENT = 'DevKit-GitHub:HuaweiCloud CCI Deoloy';
