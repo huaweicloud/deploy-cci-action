@@ -4,3 +4,4 @@ HuaweiCloud-SDK-Access.log
 coverage/
 .vscode/
 HuaweiCloud-SDK-Access.*
+lib/
