@@ -9,7 +9,7 @@ inputs:
     description: "Secret access key. This input is required if not using huaweicloud/auth-action."
     required: false
   project_id:
-    description: "项目ID，可以在华为云我的凭证获取. This input is required if not using huaweicloud/auth-action."
+    description: "Project id. This input is required if not using huaweicloud/auth-action."
     required: false
   region:
     description: 'Region. This input is required if not using huaweicloud/auth-action.'
