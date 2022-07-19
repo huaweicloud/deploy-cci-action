@@ -20,7 +20,7 @@ describe('test get credential from environment variable and input is empty', () 
     const actionName = 'region';
     cred.getCredential(actionName, true);
     expect(core.setFailed).toHaveBeenCalledWith(
-      'The Huawei Cloud credential input is not correct. Please switch to using huaweicloud/auth-action which supports authenticating to Huawei Cloud.'
+      `The Huawei Cloud credential input ${actionName} is not correct. Please switch to using huaweicloud/auth-action which supports authenticating to Huawei Cloud.`
     );
   });
 

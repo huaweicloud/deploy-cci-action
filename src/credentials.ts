@@ -19,7 +19,7 @@ export function getCredential(actionName: string, isRequired: boolean): string {
     : core.getInput(actionName, {required: false});
   if (isRequired && !cred) {
     core.setFailed(
-      'The Huawei Cloud credential input is not correct. Please switch to using huaweicloud/auth-action which supports authenticating to Huawei Cloud.'
+      `The Huawei Cloud credential input ${actionName} is not correct. Please switch to using huaweicloud/auth-action which supports authenticating to Huawei Cloud.`
     );
   }
   return cred;
