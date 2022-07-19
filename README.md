@@ -1,4 +1,4 @@
-# HuaweiCloud Deploy CCI Action
+# Huawei Cloud Deploy CCI Action
 
 开发者可以集成此action到workflow，将镜像部署到华为云容器实例。
 
@@ -53,14 +53,14 @@ jobs:
         id: build-project
         run: mvn package -Dmaven.test.skip=true -U -e -X -B
         
-      - name: Log in to HuaweiCloud SWR
+      - name: Log in to Huawei Cloud SWR
         uses: huaweicloud/swr-login@v1
         with:
           region: ${{ env.REGION_ID }}
           access-key-id: ${{ secrets.ACCESSKEY }}
           access-key-secret: ${{ secrets.SECRETACCESSKEY }}
 
-      - name: Build, Tag, and Push Image to HuaweiCloud SWR
+      - name: Build, Tag, and Push Image to Huawei Cloud SWR
         id: build-image
         env:
           SWR_REGISTRY: swr.${{ env.REGION_ID }}.myhuaweicloud.com

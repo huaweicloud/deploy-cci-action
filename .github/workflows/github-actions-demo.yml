@@ -18,14 +18,14 @@ jobs:
         id: build-project
         run: mvn package -Dmaven.test.skip=true -U -e -X -B
         
-      - name: Log in to HuaweiCloud SWR
+      - name: Log in to Huawei Cloud SWR
         uses: huaweicloud/swr-login@v1
         with:
           region: ${{ env.REGION_ID }}
           access-key-id: ${{ secrets.ACCESSKEY }}
           access-key-secret: ${{ secrets.SECRETACCESSKEY }}
 
-      - name: Build, tag, and push image to HuaweiCloud SWR
+      - name: Build, tag, and push image to Huawei Cloud SWR
         id: build-image
         env:
           SWR_REGISTRY: swr.${{ env.REGION_ID }}.myhuaweicloud.com
