@@ -1,6 +1,15 @@
 import * as core from '@actions/core';
 import * as cred from './credentials';
 
+export const CUSTOM_USER_AGENT = 'DevKit-GitHub:Huawei Cloud CCI Deoloy';
+
+export enum EndpointServiceName {
+  VPC = 'vpc',
+  ELB = 'elb',
+  IAM = 'iam',
+  CCI = 'cci'
+}
+
 export interface Inputs {
   accessKey: string;
   secretKey: string;
@@ -25,11 +34,4 @@ export function getInputs(): Inputs {
   };
 }
 
-export enum EndpointServiceName {
-  VPC = 'vpc',
-  ELB = 'elb',
-  IAM = 'iam',
-  CCI = 'cci'
-}
 
-export const CUSTOM_USER_AGENT = 'DevKit-GitHub:HuaweiCloud CCI Deoloy';
