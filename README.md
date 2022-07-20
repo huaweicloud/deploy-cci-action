@@ -41,6 +41,7 @@ SWR需要[创建组织](https://support.huaweicloud.com/usermanual-swr/swr_01_00
 | manifest    |   false    |         | 负载deployment描述yaml文件|
 
 ## **action片段使用介绍**
+action片段默认使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)。
 ### 从SWR容器镜像中心获取镜像部署CCI容器实例
 ```yaml
 - name: Deploy to CCI
