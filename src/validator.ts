@@ -24,10 +24,14 @@ const SECRET_KEY_REG = RegExp(/^[a-zA-Z0-9]{30,50}$/);
 
 const PROJECT_ID_REG = new RegExp(/^[a-zA-Z0-9]{16,64}$/);
 
-const MORE_THAN_ONE_CHAR_NAMESPACE_REG = new RegExp(/^[a-z0-9]{1}[a-z0-9\\-]{0,61}[a-z0-9]{1}$/);
+const MORE_THAN_ONE_CHAR_NAMESPACE_REG = new RegExp(
+  /^[a-z0-9]{1}[a-z0-9\\-]{0,61}[a-z0-9]{1}$/
+);
 const ONE_CHAR_NAMESPACE_REG = new RegExp(/^[a-z0-9]$/);
 
-const MORE_THAN_ONE_CHAR_DEPLOYMENT_REG = new RegExp(/^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$/);
+const MORE_THAN_ONE_CHAR_DEPLOYMENT_REG = new RegExp(
+  /^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$/
+);
 const ONE_CHAR_DEPLOYMENT_REG = new RegExp(/^[a-z0-9]$/);
 
 const SWR_REG = new RegExp(/swr\..{5,20}\.myhuaweicloud\.com/);
@@ -65,7 +69,10 @@ export function checkRegion(region: string): boolean {
  * @returns
  */
 export function checkNamespace(namespace: string): boolean {
-  return MORE_THAN_ONE_CHAR_NAMESPACE_REG.test(namespace) || ONE_CHAR_NAMESPACE_REG.test(namespace);
+  return (
+    MORE_THAN_ONE_CHAR_NAMESPACE_REG.test(namespace) ||
+    ONE_CHAR_NAMESPACE_REG.test(namespace)
+  );
 }
 
 /**
@@ -79,7 +86,8 @@ export function checkDeployment(deployment: string): boolean {
     deployment.includes('.-') ||
     deployment.includes('-.');
   return (
-    (MORE_THAN_ONE_CHAR_DEPLOYMENT_REG.test(deployment) || ONE_CHAR_DEPLOYMENT_REG.test(deployment)) &&
+    (MORE_THAN_ONE_CHAR_DEPLOYMENT_REG.test(deployment) ||
+      ONE_CHAR_DEPLOYMENT_REG.test(deployment)) &&
     !isSpecialCharacterConnector
   );
 }
@@ -150,7 +158,7 @@ export function isDeploymentNameConsistent(
  * @returns
  */
 export function checkImage(image: string, region: string): boolean {
-  if(!image.startsWith('swr')) {
+  if (!image.startsWith('swr')) {
     return true;
   }
   if (!SWR_REG.test(image)) {

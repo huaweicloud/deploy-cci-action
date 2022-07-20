@@ -1,19 +1,19 @@
 # action.yml
-name: 'HuaweiCloud CCI Deoloy'
+name: 'Huawei Cloud CCI Deoloy'
 description: 'Action for deploying to Cloud Container Instance(CCI)'
 inputs:
   access_key:
-    description: "Access key id"
-    required: true
+    description: "Access key id. This input is required if not using huaweicloud/auth-action."
+    required: false
   secret_key:
-    description: "Secret access key"
-    required: true
+    description: "Secret access key. This input is required if not using huaweicloud/auth-action."
+    required: false
   project_id:
-    description: "项目ID，可以在华为云我的凭证获取"
-    required: true
+    description: "Project id. This input is required if not using huaweicloud/auth-action."
+    required: false
   region:
-    description: 'Region'
-    required: true
+    description: 'Region. This input is required if not using huaweicloud/auth-action.'
+    required: false
     default: 'cn-north-4'
   namespace:
     description: "华为云CCI命名空间名称"
