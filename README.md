@@ -31,10 +31,10 @@ SWR需要[创建组织](https://support.huaweicloud.com/usermanual-swr/swr_01_00
 
 | Name          | Require | Default | Description |
 | ------------- | ------- | ------- | ----------- |
-| access_key    |   false    |         | 华为访问密钥即AK。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写改参数。|
-| secret_key    |   false    |         | 访问密钥即SK。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写改参数。|
-| project_id    |   false    |         | 项目ID。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写改参数。|
-| region    |   false        |     cn-north-4    | region：华北-北京四	cn-north-4；华东-上海二	cn-east-2；华东-上海一	cn-east-3；华南-广州	cn-south-1。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写改参数。|
+| access_key    |   false    |         | 华为访问密钥即AK。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写该参数。|
+| secret_key    |   false    |         | 访问密钥即SK。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写该参数。|
+| project_id    |   false    |         | 项目ID。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写该参数。|
+| region    |   false        |     cn-north-4    | region：华北-北京四	cn-north-4；华东-上海二	cn-east-2；华东-上海一	cn-east-3；华南-广州	cn-south-1。如果使用华为云统一鉴权[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)可以不填写该参数。|
 | namespace    |   true         |         | CCI命名空间|
 | deployment    |   true         |         | CCI负载名称|
 | image    |   true         |         | 镜像地址，如1)[swr镜像中心](https://console.huaweicloud.com/swr/?agencyId=66af5f8d4b84416785817649d667a396&region=cn-north-4&locale=zh-cn#/app/swr/huaweiOfficialList)：nginx:latest;  2) swr[我的镜像](https://console.huaweicloud.com/swr/?agencyId=66af5f8d4b84416785817649d667a396&region=cn-north-4&locale=zh-cn#/app/warehouse/list):swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1|
