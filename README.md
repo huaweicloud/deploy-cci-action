@@ -45,7 +45,7 @@ action片段默认使用华为云统一鉴权[huaweicloud/auth-action](https://g
 ### 从SWR容器镜像中心获取镜像部署CCI容器实例
 ```yaml
 - name: Deploy to CCI
-    uses: huaweicloud/deploy-cci-action@v1.0.3
+    uses: huaweicloud/deploy-cci-action@v1.1.0
     id: deploy-to-cci
     with:
       namespace: 'namespace-name'
@@ -55,7 +55,7 @@ action片段默认使用华为云统一鉴权[huaweicloud/auth-action](https://g
 ### 从SWR我的镜像获取镜像部署CCI容器实例
 ```yaml
 - name: Deploy to CCI
-      uses: huaweicloud/deploy-cci-action@v1.0.3
+      uses: huaweicloud/deploy-cci-action@v1.1.0
       id: deploy-to-cci
       with:
         namespace: 'namespace-name'
@@ -65,7 +65,7 @@ action片段默认使用华为云统一鉴权[huaweicloud/auth-action](https://g
 ### 根据提供的yaml文件部署CCI容器实例
 ```yaml
 - name: Deploy to CCI
-      uses: huaweicloud/deploy-cci-action@v1.0.3
+      uses: huaweicloud/deploy-cci-action@v1.1.0
       id: deploy-to-cci
       with:
         namespace: 'namespace-name'
@@ -141,6 +141,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.build-image.outputs.image }}
     steps:
       - uses: actions/checkout@v2
       
@@ -168,6 +170,7 @@ jobs:
           echo "::set-output name=image::$SWR_REGISTRY/$SWR_ORGANIZATION/$IMAGE_NAME:$IMAGE_TAG"
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate to Huawei Cloud
@@ -184,11 +187,12 @@ jobs:
 
       # 通过镜像新建或者更新负载
       - name: Deploy to CCI
-        uses: huaweicloud/deploy-cci-action@v1.0.3
+        uses: huaweicloud/deploy-cci-action@v1.1.0
         id: deploy-to-cci
         with:
           namespace: action-namespace-name
           deployment: action-deployment-name
-          image: ${{ steps.build-image.outputs.image }}
+          image: ${{ needs.build.outputs.image }}
 
 ```
+详情可参考 [deploy-cci-workflow-sample](https://github.com/huaweicloud/deploy-cci-workflow-sample)
