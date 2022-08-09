@@ -196,3 +196,10 @@ jobs:
 
 ```
 详情可参考 [deploy-cci-workflow-sample](https://github.com/huaweicloud/deploy-cci-workflow-sample)
+
+## 公网域名说明
+```
+1.部署CCI会调用华为云OpenAPI,涉及到华为云地区和终端节点：'https://developer.huaweicloud.com/endpoint?all'
+2.k8s client端的认证插件cci-iam-authenticator linux下载地址：'https://cci-iam-authenticator.obs.cn-north-4.myhuaweicloud.com/latest/linux-amd64/cci-iam-authenticator'
+3.k8s client端的认证插件cci-iam-authenticator darwin下载地址：'https://cci-iam-authenticator-all-arch.obs.cn-south-1.myhuaweicloud.com/darwin-amd64/cci-iam-authenticator'
+```

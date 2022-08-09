@@ -1,18 +1,18 @@
 {
   "name": "deploy-cci-action",
-  "version": "1.0.0",
+  "version": "v1.2.0",
   "private": true,
   "description": "Action for deploying to Cloud Container Instance(CCI)",
-  "main": "lib/main.js",
+  "main": "src/main.ts",
   "scripts": {
     "dev": " ts-node-dev src/main.ts",
     "build": "tsc",
-    "package": "ncc build src/main.ts -o dist --license licenses.txt",
+    "package": "ncc build -m --license licenses.txt",
     "test": "jest --collectCoverage",
     "lint": "eslint src test --ext ts",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check '**/*.ts'",
-    "all": "npm run lint && npm run format && npm run build && npm run package"
+    "all": "npm run test && npm run lint && npm run format && npm run build && npm run package"
   },
   "dependencies": {
     "@actions/core": "^1.9.0",
