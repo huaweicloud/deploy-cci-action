@@ -201,4 +201,5 @@ jobs:
 1.此Action是部署云容器实例CCI, 使用过程会调用华为云服务OpenAPI,涉及到云服务是: 统一身份认证服务 IAM,云容器实例 CCI,虚拟私有云 VPC,弹性负载均衡 ELB。华为云服务OpenAPI统一公网汇总页面[华为云地区和终端节点](https://developer.huaweicloud.com/endpoint?all)  
 
 2.[k8s client端的认证插件cci-iam-authenticator linux下载地址](https://cci-iam-authenticator.obs.cn-north-4.myhuaweicloud.com/latest/linux-amd64/cci-iam-authenticator)  
+
 3.[k8s client端的认证插件cci-iam-authenticator darwin下载地址](https://cci-iam-authenticator-all-arch.obs.cn-south-1.myhuaweicloud.com/darwin-amd64/cci-iam-authenticator)
