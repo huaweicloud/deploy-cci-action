@@ -32,17 +32,22 @@ export async function createPublicip(inputs: context.Inputs): Promise<string> {
   body.withPublicip(publicipbody);
   body.withBandwidth(bandwidthbody);
   request.withBody(body);
-  const result = await client.createPublicip(request);
-  core.info(result);
-  if (result.httpStatusCode != 200) {
-    core.setFailed('Create Public IP Failed.');
-  }
-  if (Object.prototype.hasOwnProperty.call(result, 'publicip')) {
-    const id = result.publicip.id;
-    if (typeof id == 'string') {
-      return Promise.resolve(id);
+  try {
+    const result = await client.createPublicip(request);
+    core.info(result);
+    if (result.httpStatusCode != 200) {
+      core.setFailed('Create Public IP Failed.');
     }
+    if (Object.prototype.hasOwnProperty.call(result, 'publicip')) {
+      const id = result.publicip.id;
+      if (typeof id == 'string') {
+        return Promise.resolve(id);
+      }
+    }
+  } catch (error) {
+    core.setFailed('Create Public IP Error.');
   }
+  
   throw new Error('Create Public IP Failed.');
 }
 
@@ -70,9 +75,12 @@ export async function updatePublicip(
   publicipbody.withPortId(portId);
   body.withPublicip(publicipbody);
   request.withBody(body);
-  const result = await client.updatePublicip(request);
-  core.info(result);
-  if (result.httpStatusCode >= 300) {
-    core.setFailed('Update Public IP Failed.');
+  try {
+    const result = await client.updatePublicip(request);
+    if (result.httpStatusCode >= 300) {
+      core.setFailed('Update Public IP Failed.');
+    }
+  } catch (error) {
+    core.setFailed('Update Public IP Error.');
   }
 }

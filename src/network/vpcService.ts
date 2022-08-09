@@ -30,11 +30,16 @@ export async function listDefaultCCISecurityGroups(
   const listRequestName = [];
   listRequestName.push(DEFAULT_SECURITY_GROUP);
   request.name = listRequestName;
-  const result: vpcv3.ListSecurityGroupsResponse =
+  let obj
+  try {
+    const result: vpcv3.ListSecurityGroupsResponse =
     await client.listSecurityGroups(request);
-  const obj = JSON.parse(JSON.stringify(result));
-  if (obj.httpStatusCode >= 300) {
-    core.setFailed('List Security Groups Failed.');
+    obj = JSON.parse(JSON.stringify(result));
+    if (obj.httpStatusCode >= 300) {
+      core.setFailed('List Security Groups Failed.');
+    }
+  } catch (error) {
+    core.setFailed('List Security Groups Error.');
   }
   const securityGroups = obj.security_groups;
   if (securityGroups instanceof Array) {
@@ -72,17 +77,22 @@ export async function createDefaultCCISecurityGroups(
   securityGroupbody.withName(DEFAULT_SECURITY_GROUP);
   body.withSecurityGroup(securityGroupbody);
   request.withBody(body);
-  const result = await client.createSecurityGroup(request);
-  const obj = JSON.parse(JSON.stringify(result));
-  if (obj.httpStatusCode >= 300) {
-    core.setFailed('Create Default CCI Security Groups Failed.');
-  }
-  if (Object.prototype.hasOwnProperty.call(obj, 'security_group')) {
-    const id = obj.security_group.id;
-    if (typeof id == 'string') {
-      return Promise.resolve(id);
+  try {
+    const result = await client.createSecurityGroup(request);
+    const obj = JSON.parse(JSON.stringify(result));
+    if (obj.httpStatusCode >= 300) {
+      core.setFailed('Create Default CCI Security Groups Failed.');
     }
+    if (Object.prototype.hasOwnProperty.call(obj, 'security_group')) {
+      const id = obj.security_group.id;
+      if (typeof id == 'string') {
+        return Promise.resolve(id);
+      }
+    }
+  } catch (error) {
+    core.setFailed('Create Default CCI Security Groups Error.');
   }
+  
   throw new Error('Create Default CCI Security Groups Failed.');
 }
 
@@ -123,10 +133,14 @@ export async function createDefaultCCISecurityGroupRule(
       .withPriority(securityGroupRule.priority);
     body.withSecurityGroupRule(securityGroupRulebody);
     request.withBody(body);
-    const result = await client.createSecurityGroupRule(request);
-    const obj = JSON.parse(JSON.stringify(result));
-    if (obj.httpStatusCode >= 300) {
-      core.setFailed('Create Default CCI Security Groups Failed.');
+    try {
+      const result = await client.createSecurityGroupRule(request);
+      const obj = JSON.parse(JSON.stringify(result));
+      if (obj.httpStatusCode >= 300) {
+        core.setFailed('Create Default CCI Security Groups Failed.');
+      }
+    } catch (error) {
+      core.setFailed('Create Default CCI Security Groups Error.');
     }
   });
 }
@@ -195,17 +209,21 @@ export async function createSubnet(vpcId: string): Promise<SubnetInfo> {
     .withExtraDhcpOpts(listSubnetExtraDhcpOpts);
   body.withSubnet(subnetbody);
   request.withBody(body);
-  const result = await client.createSubnet(request);
-  if (result.httpStatusCode >= 300) {
-    core.setFailed('Create Subnet Failed.');
-  }
-  const subnetInfo: SubnetInfo = JSON.parse(JSON.stringify(result.subnet));
-  if (
-    Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') &&
-    Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') &&
-    Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')
-  ) {
-    return Promise.resolve(subnetInfo);
+  try {
+    const result = await client.createSubnet(request);
+    if (result.httpStatusCode >= 300) {
+      core.setFailed('Create Subnet Failed.');
+    }
+    const subnetInfo: SubnetInfo = JSON.parse(JSON.stringify(result.subnet));
+    if (
+      Object.prototype.hasOwnProperty.call(subnetInfo, 'cidr') &&
+      Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_network_id') &&
+      Object.prototype.hasOwnProperty.call(subnetInfo, 'neutron_subnet_id')
+    ) {
+      return Promise.resolve(subnetInfo);
+    }
+  } catch (error) {
+    core.setFailed('Create Subnet Error.');
   }
   throw new Error('Create Subnet Failed.');
 }

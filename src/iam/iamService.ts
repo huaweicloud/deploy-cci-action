@@ -20,18 +20,22 @@ export async function keystoneListAuthDomains(
     .withOptions({customUserAgent: context.CUSTOM_USER_AGENT})
     .build();
   const request = new iam.KeystoneListAuthDomainsRequest();
-  const result = await client.keystoneListAuthDomains(request);
-  if (result.httpStatusCode >= 300) {
-    core.setFailed('Keystone List Auth Domains Failed.');
-  }
-  if (result.domains instanceof Array) {
-    if (result.domains.length <= 0) {
+  try {
+    const result = await client.keystoneListAuthDomains(request);
+    if (result.httpStatusCode >= 300) {
       core.setFailed('Keystone List Auth Domains Failed.');
     }
-    const id = result.domains[0].id;
-    if (typeof id == 'string') {
-      return Promise.resolve(id);
+    if (result.domains instanceof Array) {
+      if (result.domains.length <= 0) {
+        core.setFailed('Keystone List Auth Domains Failed.');
+      }
+      const id = result.domains[0].id;
+      if (typeof id == 'string') {
+        return Promise.resolve(id);
+      }
     }
+  } catch (error) {
+    core.setFailed('Keystone List Auth Domains Error.');
   }
   throw new Error('Keystone List Auth Domains Failed.');
 }

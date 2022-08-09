@@ -54,7 +54,6 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
       yaml.stringify(namespaceContent),
       'utf8'
     );
-    core.info(await utils.execCommand('cat ' + namespaceFileName));
     applyNamespace(namespaceFileName);
 
     // 新建Network
@@ -207,9 +206,13 @@ export async function isNamespaceExist(
     .build();
   const request = new ReadCoreV1NamespaceRequest();
   request.withNamespace(inputs.namespace);
-  const result = await client.readCoreV1Namespace(request);
-  if (result.httpStatusCode === 200) {
-    isExist = true;
+  try {
+    const result = await client.readCoreV1Namespace(request);
+    if (result.httpStatusCode === 200) {
+      isExist = true;
+    }
+  } catch (error) {
+    core.setFailed('Query Namespace Exist Failed.');
   }
   return isExist;
 }
@@ -364,5 +367,10 @@ export async function getCCINetwork(
     .build();
   const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest();
   request.withNamespace(inputs.namespace);
-  return await client.listNetworkingCciIoV1beta1NamespacedNetwork(request);
+  try {
+    return await client.listNetworkingCciIoV1beta1NamespacedNetwork(request);
+  } catch (error) {
+    core.setFailed('Get CCI Network Error.');
+  }
+  throw new Error('Get CCI Network Failed.');
 }
