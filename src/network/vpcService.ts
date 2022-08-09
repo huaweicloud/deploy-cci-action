@@ -49,7 +49,7 @@ export async function listDefaultCCISecurityGroups(
       return Promise.resolve(securityGroupId);
     }
     const id = securityGroups[0].id;
-    if (typeof id == 'string') {
+    if (typeof id === 'string') {
       return Promise.resolve(id);
     }
   }
@@ -85,7 +85,7 @@ export async function createDefaultCCISecurityGroups(
     }
     if (Object.prototype.hasOwnProperty.call(obj, 'security_group')) {
       const id = obj.security_group.id;
-      if (typeof id == 'string') {
+      if (typeof id === 'string') {
         return Promise.resolve(id);
       }
     }
@@ -173,7 +173,7 @@ export async function createVpc(inputs: context.Inputs): Promise<string> {
   }
   if (Object.prototype.hasOwnProperty.call(obj, 'vpc')) {
     const id = obj.vpc.id;
-    if (typeof id == 'string') {
+    if (typeof id === 'string') {
       return Promise.resolve(id);
     }
   }

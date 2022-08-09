@@ -236,7 +236,7 @@ export async function isDeploymentExist(
       isExist = true;
     }
   } catch (error) {
-    core.info(inputs.deployment + ' deployment does not exist.');
+    core.info(`${inputs.deployment} deployment does not exist.`);
     isExist = false;
   }
   return isExist;
@@ -249,8 +249,8 @@ export async function isDeploymentExist(
  */
 export async function applyNamespace(filePath: string): Promise<void> {
   core.info('start apply namespace');
-  const result = await utils.execCommand('kubectl apply -f ' + filePath);
-  core.info('deploy cci namespace result: ' + result);
+  await utils.execCommand(`kubectl apply -f ${filePath}`);
+  core.info('deploy cci namespace result end.');
 }
 
 /**
@@ -264,9 +264,9 @@ export async function applyNetwork(
 ): Promise<void> {
   core.info('start apply network');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci network result: ' + result);
+  core.info('deploy cci network result end.');
 }
 
 /**
@@ -280,9 +280,9 @@ export async function applyDeployment(
 ): Promise<void> {
   core.info('start apply deployment');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci result: ' + result);
+  core.info('deploy cci result end.');
 }
 
 /**
@@ -296,9 +296,9 @@ export async function applyService(
 ): Promise<void> {
   core.info('start apply Service');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci Service result: ' + result);
+  core.info('deploy cci Service result end.');
 }
 
 /**
@@ -312,9 +312,9 @@ export async function applyIngress(
 ): Promise<void> {
   core.info('start apply Ingress');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci Ingress result: ' + result);
+  core.info('deploy cci Ingress result end.');
 }
 
 /**
@@ -343,7 +343,7 @@ export async function getCCINetworkSubnetID(
     subnetID = spec.subnetID;
   }
 
-  if (subnetID === null || subnetID == undefined) {
+  if (subnetID === null || subnetID === undefined) {
     throw new Error('Get CCINetwork SubnetID Faild: ' + JSON.stringify(result));
   }
 

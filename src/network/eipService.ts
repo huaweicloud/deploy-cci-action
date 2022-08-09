@@ -34,13 +34,12 @@ export async function createPublicip(inputs: context.Inputs): Promise<string> {
   request.withBody(body);
   try {
     const result = await client.createPublicip(request);
-    core.info(result);
     if (result.httpStatusCode != 200) {
       core.setFailed('Create Public IP Failed.');
     }
     if (Object.prototype.hasOwnProperty.call(result, 'publicip')) {
       const id = result.publicip.id;
-      if (typeof id == 'string') {
+      if (typeof id === 'string') {
         return Promise.resolve(id);
       }
     }
