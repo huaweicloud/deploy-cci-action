@@ -27,7 +27,6 @@ inputs:
   image:
     description: 镜像地址
     required: true 
-    default: swr.cn-north-4.myhuaweicloud.com/demo/demo:v1.1  
 branding:
   icon: 'cloud'
   color: 'red'

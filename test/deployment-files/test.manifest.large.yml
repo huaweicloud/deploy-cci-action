@@ -94,7 +94,7 @@ packages:
       node: '>=6.9.0'
     funding:
       type: opencollective
-      url: https://opencollective.com/babel
+      url: xxx.xxx.xxx.xxx.xxx.xxx.xxx.xxx.xxx
   node_modules/@babel/generator:
     version: 7.17.7
     resolved: xxx.xxx.xxx.xxx.xxx.xxx.xxx.xxx.xxx

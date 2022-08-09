@@ -16,10 +16,10 @@ SWR需要[创建组织](https://support.huaweicloud.com/usermanual-swr/swr_01_00
 #### 3）[创建负载(非必须，不存在即创建)](https://support.huaweicloud.com/qs-cci/cci_qs_0005.html)  
 
 ## **鉴权认证**
-推荐使用[huaweicloud/auth-action](https://github.com/huaweicloud/auth-action)进行华为云部署容器实例的鉴权认证。
+推荐使用最新版本的[huaweicloud/auth-action](https://github.com/marketplace/actions/authenticate-to-huawei-cloud)进行华为云部署容器实例的鉴权认证。
 ```yaml
     - name: Authenticate to Huawei Cloud
-      uses: huaweicloud/auth-action@v1.0.0
+      uses: huaweicloud/auth-action@v1.1.0
       with: 
           access_key_id: ${{ secrets.ACCESSKEY }} 
           secret_access_key: ${{ secrets.SECRETACCESSKEY }}
@@ -45,7 +45,7 @@ action片段默认使用华为云统一鉴权[huaweicloud/auth-action](https://g
 ### 从SWR容器镜像中心获取镜像部署CCI容器实例
 ```yaml
 - name: Deploy to CCI
-    uses: huaweicloud/deploy-cci-action@v1.1.0
+    uses: huaweicloud/deploy-cci-action@v1.2.0
     id: deploy-to-cci
     with:
       namespace: 'namespace-name'
@@ -55,7 +55,7 @@ action片段默认使用华为云统一鉴权[huaweicloud/auth-action](https://g
 ### 从SWR我的镜像获取镜像部署CCI容器实例
 ```yaml
 - name: Deploy to CCI
-      uses: huaweicloud/deploy-cci-action@v1.1.0
+      uses: huaweicloud/deploy-cci-action@v1.2.0
       id: deploy-to-cci
       with:
         namespace: 'namespace-name'
@@ -65,7 +65,7 @@ action片段默认使用华为云统一鉴权[huaweicloud/auth-action](https://g
 ### 根据提供的yaml文件部署CCI容器实例
 ```yaml
 - name: Deploy to CCI
-      uses: huaweicloud/deploy-cci-action@v1.1.0
+      uses: huaweicloud/deploy-cci-action@v1.2.0
       id: deploy-to-cci
       with:
         namespace: 'namespace-name'
@@ -151,7 +151,7 @@ jobs:
         run: mvn package -Dmaven.test.skip=true -U -e -X -B
         
       - name: Log in to Huawei Cloud SWR
-        uses: huaweicloud/swr-login@v1
+        uses: huaweicloud/swr-login@v2.1.0
         with:
           region: ${{ env.REGION_ID }}
           access-key-id: ${{ secrets.ACCESSKEY }}
@@ -174,7 +174,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate to Huawei Cloud
-        uses: huaweicloud/auth-action@v1.0.0
+        uses: huaweicloud/auth-action@v1.1.0
         with: 
             access_key_id: ${{ secrets.ACCESSKEY }} 
             secret_access_key: ${{ secrets.SECRETACCESSKEY }}
@@ -187,7 +187,7 @@ jobs:
 
       # 通过镜像新建或者更新负载
       - name: Deploy to CCI
-        uses: huaweicloud/deploy-cci-action@v1.1.0
+        uses: huaweicloud/deploy-cci-action@v1.2.0
         id: deploy-to-cci
         with:
           namespace: action-namespace-name
@@ -197,9 +197,8 @@ jobs:
 ```
 详情可参考 [deploy-cci-workflow-sample](https://github.com/huaweicloud/deploy-cci-workflow-sample)
 
-## 公网域名说明
-```
-1.部署CCI会调用华为云OpenAPI,涉及到华为云地区和终端节点：'https://developer.huaweicloud.com/endpoint?all'
-2.k8s client端的认证插件cci-iam-authenticator linux下载地址：'https://cci-iam-authenticator.obs.cn-north-4.myhuaweicloud.com/latest/linux-amd64/cci-iam-authenticator'
-3.k8s client端的认证插件cci-iam-authenticator darwin下载地址：'https://cci-iam-authenticator-all-arch.obs.cn-south-1.myhuaweicloud.com/darwin-amd64/cci-iam-authenticator'
-```
+## Action中使用的公网地址说明
+1.此Action是部署云容器实例CCI, 使用过程会调用华为云服务OpenAPI,涉及到云服务是: 统一身份认证服务 IAM,云容器实例 CCI,虚拟私有云 VPC,弹性负载均衡 ELB。华为云服务OpenAPI统一公网汇总页面[华为云地区和终端节点](https://developer.huaweicloud.com/endpoint?all)  
+
+2.[k8s client端的认证插件cci-iam-authenticator linux下载地址](https://cci-iam-authenticator.obs.cn-north-4.myhuaweicloud.com/latest/linux-amd64/cci-iam-authenticator)  
+3.[k8s client端的认证插件cci-iam-authenticator darwin下载地址](https://cci-iam-authenticator-all-arch.obs.cn-south-1.myhuaweicloud.com/darwin-amd64/cci-iam-authenticator)
