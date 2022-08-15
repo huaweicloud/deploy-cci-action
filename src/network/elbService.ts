@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import * as utils from '../utils';
 import * as context from '../context';
 import {ElbClient} from './ElbClient';
@@ -27,7 +28,7 @@ export async function getLoadbalancerVipPortIdByLoadbalancer(
     vipPortId = loadbalancerResp.vip_port_id;
   }
 
-  if (vipPortId === null || vipPortId == undefined) {
+  if (vipPortId === null || vipPortId === undefined) {
     throw new Error(
       'Get Loadbanlancer vipPortId Faild: ' + JSON.stringify(loadbalancerResp)
     );
@@ -57,7 +58,7 @@ export async function getLoadbalancerIdByLoadbalancer(
     id = loadbalancerResp.id;
   }
 
-  if (id === null || id == undefined) {
+  if (id === null || id === undefined) {
     throw new Error(
       'get Loadbanlancer ID Faild: ' + JSON.stringify(loadbalancerResp)
     );
@@ -90,5 +91,10 @@ export async function createLoadbalancer(
     .withVipSubnetId(vipSubnetId);
   body.withLoadbalancer(loadbalancerbody);
   request.withBody(body);
-  return await client.createLoadbalancer(request);
+  try {
+    return await client.createLoadbalancer(request);
+  } catch (error) {
+    core.setFailed('Create Loadbalancer Error.');
+  }
+  throw new Error('Create Loadbalancer Failed.');
 }

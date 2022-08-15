@@ -54,7 +54,6 @@ export async function createNamespace(inputs: context.Inputs): Promise<void> {
       yaml.stringify(namespaceContent),
       'utf8'
     );
-    core.info(await utils.execCommand('cat ' + namespaceFileName));
     applyNamespace(namespaceFileName);
 
     // 新建Network
@@ -207,9 +206,13 @@ export async function isNamespaceExist(
     .build();
   const request = new ReadCoreV1NamespaceRequest();
   request.withNamespace(inputs.namespace);
-  const result = await client.readCoreV1Namespace(request);
-  if (result.httpStatusCode === 200) {
-    isExist = true;
+  try {
+    const result = await client.readCoreV1Namespace(request);
+    if (result.httpStatusCode === 200) {
+      isExist = true;
+    }
+  } catch (error) {
+    core.setFailed('Query Namespace Exist Failed.');
   }
   return isExist;
 }
@@ -233,7 +236,7 @@ export async function isDeploymentExist(
       isExist = true;
     }
   } catch (error) {
-    core.info(inputs.deployment + ' deployment does not exist.');
+    core.info(`${inputs.deployment} deployment does not exist.`);
     isExist = false;
   }
   return isExist;
@@ -246,8 +249,8 @@ export async function isDeploymentExist(
  */
 export async function applyNamespace(filePath: string): Promise<void> {
   core.info('start apply namespace');
-  const result = await utils.execCommand('kubectl apply -f ' + filePath);
-  core.info('deploy cci namespace result: ' + result);
+  await utils.execCommand(`kubectl apply -f ${filePath}`);
+  core.info('deploy cci namespace result end.');
 }
 
 /**
@@ -261,9 +264,9 @@ export async function applyNetwork(
 ): Promise<void> {
   core.info('start apply network');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci network result: ' + result);
+  core.info('deploy cci network result end.');
 }
 
 /**
@@ -277,9 +280,9 @@ export async function applyDeployment(
 ): Promise<void> {
   core.info('start apply deployment');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci result: ' + result);
+  core.info('deploy cci result end.');
 }
 
 /**
@@ -293,9 +296,9 @@ export async function applyService(
 ): Promise<void> {
   core.info('start apply Service');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci Service result: ' + result);
+  core.info('deploy cci Service result end.');
 }
 
 /**
@@ -309,9 +312,9 @@ export async function applyIngress(
 ): Promise<void> {
   core.info('start apply Ingress');
   const result = await utils.execCommand(
-    'kubectl apply -f ' + filePath + ' -n ' + namespace
+    `kubectl apply -f ${filePath} -n ${namespace}`
   );
-  core.info('deploy cci Ingress result: ' + result);
+  core.info('deploy cci Ingress result end.');
 }
 
 /**
@@ -340,7 +343,7 @@ export async function getCCINetworkSubnetID(
     subnetID = spec.subnetID;
   }
 
-  if (subnetID === null || subnetID == undefined) {
+  if (subnetID === null || subnetID === undefined) {
     throw new Error('Get CCINetwork SubnetID Faild: ' + JSON.stringify(result));
   }
 
@@ -364,5 +367,10 @@ export async function getCCINetwork(
     .build();
   const request = new ListNetworkingCciIoV1beta1NamespacedNetworkRequest();
   request.withNamespace(inputs.namespace);
-  return await client.listNetworkingCciIoV1beta1NamespacedNetwork(request);
+  try {
+    return await client.listNetworkingCciIoV1beta1NamespacedNetwork(request);
+  } catch (error) {
+    core.setFailed('Get CCI Network Error.');
+  }
+  throw new Error('Get CCI Network Failed.');
 }
