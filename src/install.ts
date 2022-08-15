@@ -5,7 +5,7 @@ import * as utils from './utils';
 export async function downloadCciIamAuthenticator(): Promise<void> {
   core.info('start to install cci-iam-authenticator');
   const platform = os.platform();
-  core.info('platform: ' + platform);
+  core.info(`platform: ${platform}`);
   await installCciIamAuthenticatorByPlatform(platform);
 }
 
@@ -55,5 +55,5 @@ export async function installCciIamAuthenticator(
 export async function checkCciIamAuthenticator(): Promise<void> {
   core.info('check download cci-iam-authenticator result.');
   const checkResult = await utils.execCommand('cci-iam-authenticator --help');
-  core.info('check download cci-iam-authenticator result: ' + checkResult);
+  core.info(`check download cci-iam-authenticator result: ${checkResult}`);
 }

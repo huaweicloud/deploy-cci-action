@@ -32,7 +32,7 @@ describe('config cci auth', () => {
     );
     expect(core.info).toHaveBeenNthCalledWith(
       2,
-      'generate-kubeconfig result: ok'
+      'generate-kubeconfig result end.'
     );
   });
 });

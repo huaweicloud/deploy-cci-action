@@ -135,13 +135,13 @@ export function isDeploymentNameConsistent(
   const obsJson = yaml.parse(file);
 
   const metadata = obsJson.metadata;
-  if (metadata === null || metadata == undefined) {
+  if (metadata === null || metadata === undefined) {
     core.info('manifest file is not correct.');
     return false;
   }
 
   const deploymentName = metadata.name;
-  if (deploymentName === null || deploymentName == undefined) {
+  if (deploymentName === null || deploymentName === undefined) {
     core.info('manifest file is not correct.');
     return false;
   }
@@ -164,7 +164,7 @@ export function checkImage(image: string, region: string): boolean {
   if (!SWR_REG.test(image)) {
     return false;
   }
-  if (image.indexOf(region) == -1) {
+  if (image.indexOf(region) === -1) {
     core.info('The region of cci and swr must be the same.');
     return false;
   }
